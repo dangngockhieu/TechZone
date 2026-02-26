@@ -39,7 +39,16 @@ export class UserController {
             message: 'Tạo người dùng thành công'
         };
     }
-
+    @Patch('change-password')
+    async changePassword(@Req() req: Request, @Body() body:ChangePasswordDTO) {
+        const email = "(req.user as any)?.email";
+        const { oldPassword, newPassword } = body;
+        await this.userService.changePassword(email, oldPassword, newPassword);
+        return {
+            success: true,
+            message: 'Đổi mật khẩu thành công'
+        };
+    }
     // CHANGE ROLE USER 
     @Patch('user-role/:id')
     async changeUserRole(@Req() req: Request) {

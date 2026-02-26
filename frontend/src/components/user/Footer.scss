@@ -1,0 +1,139 @@
+.app-footer {
+  background: linear-gradient(135deg, #d4d8da, #c9ced6);
+  padding: 60px 0 30px;
+  color: #000;
+  padding: 40px 0 0;
+  .app-footer {
+  border-top: 1px solid #333;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25) inset;
+}
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .app-footer__inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+
+  .app-footer__brand {
+    max-width: 420px;
+
+    .app-footer__brand-mark {
+      display: inline-block;
+      font-weight: 700;
+      font-size: inherit;
+      margin-bottom: 10px;
+      color: #38c172;
+      font-size: 2rem;
+    }
+
+    p {
+      margin-top: 10px;
+      line-height: 1.6;
+      color: #000;
+    }
+
+    .app-footer__contact {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+
+      a,
+      span {
+        color: #000;
+        text-decoration: none;
+
+        &:hover {
+          color: #38c172;
+        }
+      }
+    }
+  }
+
+  .app-footer__column {
+    h4 {
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+
+    a {
+      display: block;
+      color: #000;
+      margin-bottom: 6px;
+      text-decoration: none;
+
+      &:hover {
+        color: #38c172;
+      }
+    }
+  }
+
+  .app-footer__bottom {
+    border-top: 1px solid #333;
+    margin-top: 35px;
+    padding: 22px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: #000;
+
+    span {
+      color: #000;
+      font-size: 1.1rem;
+    }
+
+    .app-footer__legal {
+      display: flex;
+      gap: 20px;
+
+      a {
+        color: #000;
+        text-decoration: none;
+        font-size: 1.1rem;
+
+        &:hover {
+          color: #38c172
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .app-footer__inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 28px;
+    }
+
+    .app-footer__brand {
+      max-width: 100%;
+      text-align: center;
+
+      .app-footer__contact {
+        align-items: center;
+      }
+    }
+
+    .app-footer__column {
+      text-align: center;
+    }
+
+    .app-footer__bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+  }
+}
