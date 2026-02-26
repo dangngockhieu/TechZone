@@ -41,7 +41,7 @@ export class UserController {
     }
     @Patch('change-password')
     async changePassword(@Req() req: Request, @Body() body:ChangePasswordDTO) {
-        const email = "(req.user as any)?.email";
+        const email = (req.user as any)?.email;
         const { oldPassword, newPassword } = body;
         await this.userService.changePassword(email, oldPassword, newPassword);
         return {
