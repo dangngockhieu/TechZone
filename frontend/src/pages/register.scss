@@ -1,0 +1,379 @@
+:root {
+  --blue: #69a9b7;
+  --muted: #555;
+  --card-bg: #fff;
+}
+
+/* ========= ANIMATION KEYFRAMES ========= */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========= WRAPPER ========= */
+.register-wrap {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, #f5f7fa 0%, #ffffff 100%);
+  padding: 2px 20px;
+  overflow-y: auto;
+  align-items: flex-start;
+
+  /* ========= CARD CONTAINER ========= */
+  .register-card {
+    width: 100%;
+    min-height: 88vh;
+    max-width: 1000px;
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease forwards;
+
+    /* ========= PANEL XANH ========= */
+    &__info {
+      flex: 1;
+      background: linear-gradient(135deg, #69a9b7, #4f8c9a);
+      color: #fff;
+      padding: 48px 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      position: relative;
+      animation: fadeInLeft 1s ease forwards;
+
+      /* ánh sáng phản chiếu nhẹ */
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at top left,
+          rgba(255, 255, 255, 0.2),
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      /* thương hiệu */
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 8px;
+
+        i {
+          font-size: 36px;
+          color: #fff;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        h3 {
+          margin: 0;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+      }
+
+      /* đoạn mô tả */
+      p {
+        margin: 0;
+        opacity: 0.95;
+        line-height: 1.6;
+        font-size: 18px;
+        max-width: 420px;
+        animation: fadeInUp 1.2s ease both;
+        color: #fefefe;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      }
+
+      /* danh sách lợi ích */
+      .benefits {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-width: 420px;
+
+        li {
+          font-size: 17px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #fff;
+          opacity: 0.95;
+          letter-spacing: 0.2px;
+          line-height: 1.4;
+          animation: fadeInUp 1.3s ease both;
+          transition: transform 0.25s ease, opacity 0.25s ease;
+
+          svg {
+            flex-shrink: 0;
+            font-size: 22px;
+            min-width: 22px;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+            transition: transform 0.25s ease;
+          }
+
+          &:hover {
+            transform: translateX(6px);
+            opacity: 1;
+          }
+
+          &:hover svg {
+            transform: scale(1.2);
+          }
+        }
+      }
+    }
+
+    /* ========= FORM PANEL ========= */
+    &__form {
+      flex: 1;
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      animation: fadeInRight 1s ease forwards;
+
+      .form-header {
+        margin-bottom: 8px;
+
+        h2 {
+          margin: 0;
+          font-size: 24px;
+        }
+
+        p {
+          color: var(--muted);
+          margin-top: 4px;
+          font-size: 15px;
+          line-height: 1.4;
+        }
+      }
+
+      .form {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+
+          span {
+            font-weight: 600;
+            font-size: 14px;
+          }
+
+          &__input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: box-shadow 0.25s ease;
+
+            &:focus-within {
+              box-shadow: 0 0 0 3px rgba(105, 169, 183, 0.25);
+            }
+
+            i {
+              color: var(--muted);
+              font-size: 16px;
+            }
+
+            input {
+              border: none;
+              background: transparent;
+              outline: none;
+              flex: 1;
+              font-size: 15px;
+              padding: 2px 0;
+              height: 32px;
+            }
+
+            button {
+              border: none;
+              background: transparent;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 50%;
+              width: 28px;
+              height: 28px;
+
+              .eye {
+                font-size: 17px;
+                color: var(--muted);
+                transition: color 0.2s, transform 0.2s;
+
+                &:hover {
+                  color: #000;
+                  transform: scale(1.1);
+                }
+              }
+            }
+          }
+        }
+
+        .submit {
+          margin-top: 8px;
+          background: #111;
+          color: #fff;
+          padding: 12px;
+          border-radius: 8px;
+          border: none;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.25s ease, transform 0.25s ease;
+
+          &:hover {
+            background: #000;
+            transform: translateY(-2px);
+          }
+        }
+
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 14px 0;
+          font-size: 14px;
+
+          &:before,
+          &:after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e6e6e6;
+          }
+
+          span {
+            color: var(--muted);
+            font-size: 13px;
+          }
+        }
+
+        .signup {
+          color: var(--muted);
+          text-align: center;
+          font-size: 15px;
+          font-weight: 500;
+          margin-top: 4px;
+
+          a {
+            color: #000;
+            font-weight: 700;
+            text-decoration: underline;
+
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* ========= FULLSCREEN ========= */
+  @media (min-height: 800px) and (min-width: 1000px) {
+    align-items: center;
+
+    .register-card {
+      height: 85vh;
+    }
+  }
+
+  /* ========= RESPONSIVE ========= */
+  @media (max-width: 900px) {
+    .register-card {
+      flex-direction: column;
+
+      /* 🟢 GIỮ MÀU XANH, KHÔNG ĐỔI */
+      &__info {
+        order: 1;
+        padding: 36px 28px;
+        text-align: center;
+        align-items: center;
+        background: linear-gradient(135deg, #69a9b7, #4f8c9a); /* giữ nguyên màu */
+        animation: fadeInUp 1s ease forwards;
+
+        .brand {
+          justify-content: center;
+        }
+
+        p {
+          max-width: 100%;
+        }
+
+        .benefits {
+          align-items: flex-start;
+          text-align: left;
+        }
+      }
+
+      &__form {
+        order: 2;
+        padding: 28px;
+        animation: fadeInUp 1s ease forwards;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .register-card {
+      border-radius: 10px;
+
+      &__info,
+      &__form {
+        padding: 18px;
+      }
+
+      .form-header h2 {
+        font-size: 20px;
+      }
+    }
+  }
+}

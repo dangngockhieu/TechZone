@@ -136,6 +136,8 @@ export class AuthService {
             await this.sendVerificationEmail(email, name, token);
         } catch (err) {
             console.error('Failed to send verification email', err);
+            // Xóa user đã tạo nếu gửi email thất bại để user có thể đăng ký lại
+            await this.pool.query('DELETE FROM "users" WHERE email = $1', [email]);
             throw new BadRequestException('Đăng ký thất bại. Không thể gửi email xác thực, vui lòng thử lại sau.');
         }
     }

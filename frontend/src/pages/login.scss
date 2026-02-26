@@ -1,0 +1,291 @@
+:root {
+  --green: #7ed321;
+  --green-strong: #1ea971;
+  --muted: #383a3c;
+  --card-bg: #fff;
+  --panel-radius: 16px;
+}
+
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f5f7fa 0%, #ffffff 100%);
+  padding: 40px 20px;
+
+  .login-card {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
+    overflow: hidden;
+
+    /* Left info panel */
+    &__info {
+      flex: 1.05;
+      background: var(--green-strong);
+      color: #fff;
+      padding: 48px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      justify-content: center;
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        &__icon {
+          font-size: 28px;
+          background: rgba(255, 255, 255, 0.12);
+          padding: 12px;
+          border-radius: 8px;
+        }
+
+        &__title {
+          margin: 0;
+          font-size:40px;
+          font-weight: 600;
+        }
+      }
+
+      .intro {
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 18px;
+        }
+
+        p {
+          margin: 0;
+          opacity: 0.95;
+          line-height: 1.6;
+        }
+      }
+
+      .benefits {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+
+        li {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 500;
+        }
+
+        .check {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.12);
+          color: #fff;
+          font-weight: 700;
+        }
+      }
+    }
+
+    /* Right form panel */
+    &__form {
+      flex: 0.9;
+      padding: 40px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .form-header {
+        h2 {
+          margin: 0;
+          font-size: 28px;
+        }
+
+        .muted {
+          color: var(--muted);
+          margin-top: 8px;
+        }
+      }
+
+      .form {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+
+        .field {
+          display: block;
+
+          &__label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+          }
+
+          &__label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          &__input {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f3f4f6;
+            padding: 12px 14px;
+            border-radius: 10px;
+
+            i {
+              color: var(--muted);
+              font-size: 18px;
+            }
+
+            input {
+              border: 0;
+              background: transparent;
+              outline: none;
+              width: 100%;
+              font-size: 15px;
+            }
+
+            button {
+              background: transparent;
+              border: 0;
+              cursor: pointer;
+              padding: 6px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 50%;
+              width: 36px;
+              height: 36px;
+              color: var(--muted);
+              transition: background 0.2s ease;
+
+              &:hover {
+                background: rgba(0, 0, 0, 0.06);
+              }
+
+              &:focus {
+                outline: none;
+                box-shadow: none;
+              }
+
+              /* 👁️ icon mắt */
+              .eye {
+                font-size: 18px;
+                color: var(--muted);
+                transition: color 0.2s, transform 0.15s ease;
+
+                &:hover {
+                  color: #000;
+                  transform: scale(1.1);
+                }
+              }
+            }
+          }
+        }
+
+        .forgot {
+          color: var(--muted);
+          font-size: 16px;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .submit {
+          margin-top: 8px;
+          background: #1e1e2f;
+          color: #fff;
+          padding: 14px;
+          border-radius: 10px;
+          border: 0;
+          font-weight: 700;
+          cursor: pointer;
+
+          &:hover {
+            background: #0b0b12;
+          }
+        }
+
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 18px 0;
+
+          &:before,
+          &:after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e6e6e6;
+          }
+
+          span {
+            padding: 0 12px;
+            color: var(--muted);
+          }
+        }
+
+        .signup {
+          color: var(--muted);
+          text-align: center;
+          margin-top: 6px;
+
+          a {
+            color: #111;
+            font-weight: 700;
+          }
+        }
+      }
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .login-card {
+      flex-direction: column;
+
+      &__info {
+        order: 1;
+        padding: 30px;
+      }
+
+      &__form {
+        order: 2;
+        padding: 30px;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      border-radius: 12px;
+
+      &__info {
+        padding: 20px;
+      }
+
+      &__form {
+        padding: 20px;
+      }
+    }
+
+    .brand__title {
+      font-size: 16px;
+    }
+  }
+}

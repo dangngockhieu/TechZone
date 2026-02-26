@@ -4,6 +4,7 @@
 backend/node_modules
 backend/dist
 backend/build
+backend/docker-compose.yml
 backend/coverage
 backend/.nyc_output
 backend/.env

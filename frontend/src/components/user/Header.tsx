@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
 import { BsEnvelopeFill, BsCaretDownFill } from "react-icons/bs";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { doLogout } from "../../redux/slices/userSlice";
+import { logout } from "../../services/apiServices";
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 import ChangePassword from './ChangePassword';
 import { NavLink, Link } from "react-router-dom";
 
 const Header = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, account } = useAppSelector((state) => state.user);
 
@@ -30,7 +33,17 @@ const Header = () => {
   }, []);
 
 
-
+const handleLogout = async() => {
+      try {
+        await logout();
+      } catch (err) {
+        
+        console.error('Logout request failed', err);
+      }
+      dispatch(doLogout());
+      setShowMenu(false);
+      navigate('/login');
+  };
 
 
   return (
@@ -117,7 +130,7 @@ const Header = () => {
                     )}
                   </div>
 
-
+                    <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
                 </>
               )}
             </div>
