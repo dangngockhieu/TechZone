@@ -5,10 +5,14 @@ import NotFound from './pages/error.js';
 import Login from './pages/login.js';
 import ResetPassword from './pages/resetPassword.js';
 import Register from './pages/register.js';
+import Privacy from './components/term/Privacy.js';
+import Warranty from './components/term/Warranty.js';
 const App = () => {
   return (
       <Routes>
         <Route path="/" element={<Homepage />} errorElement={<NotFound />}>
+          <Route path="warranty" element={<Warranty />} />
+          <Route path="privacy" element={<Privacy />} />
         </Route>
         
         <Route path="/login" element={<Login />} />
