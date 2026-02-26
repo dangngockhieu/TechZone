@@ -10,8 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "2.11.2",
+    "axios": "1.13.5",
+    "bootstrap": "5.3.8",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-bootstrap": "2.10.10",
+    "react-dom": "19.2.4",
+    "react-router-dom": "7.13.1",
+    "react-toastify": "11.0.5",
+    "sass": "1.97.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
