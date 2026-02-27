@@ -1,0 +1,363 @@
+.landing-page{
+  background: #edf4f6;
+  width: 100%;
+}
+.header__hero {
+  background: #afcfd6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 99.5vw;
+  margin: 0 calc(-50vw + 50%);
+  padding: 60px 0;
+  background: #d8e5e5;
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: 40px;
+
+  .header__hero-content {
+    flex: 1;
+    width: 90%;
+    padding-left: 6%;
+    font-family: inherit;
+    color: inherit;
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.3;
+      font-weight: 700;
+
+      span {
+        font-weight: 700;
+      }
+    }
+
+    .hero-btn {
+      margin-top: 24px;
+      padding: 12px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 40px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.25s ease;
+
+      &:hover {
+        background: #000;
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .header__hero-image {
+    flex: 1.2;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 4%;
+
+    img {
+      width: 100%;
+      max-width: 700px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transition: transform 0.6s ease, opacity 0.6s ease;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+    }
+  }
+}
+
+.bestseller {
+  margin-top: 80px;
+  padding-bottom: 40px;
+
+  &__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 130px ;
+    .fire{
+      font-size: 2rem;
+      margin-right: 8px;
+      margin-bottom: 12px;
+      color: #f09a05;
+    } 
+    .phone{
+      font-size: 2.2rem;
+      margin-right: 8px;
+      margin-bottom: 12px;
+    } 
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    p {
+      color: #666;
+      font-size: 0.95rem;
+      flex: 1;
+    }
+
+    a {
+      color: #1976d2;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        text-decoration: underline;
+        color: #1259a3;
+      }
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  .product-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    width: 230px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .discount {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #1976d2;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      object-fit: cover;
+    }
+
+    .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      .rating {
+        color: #ac781e;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        .star{
+          align-items: center;
+          color: #ffa000 !important;
+          margin-bottom: 7px;
+          font-size: 1rem;
+        }
+        span {
+          color: #555;
+          font-size: 0.8rem;
+        }
+      }
+
+      h3 {
+        font-size: 0.9rem;
+        color: #333;
+        line-height: 1.3;
+        margin-bottom: 6px;
+        flex-grow: 1;
+      }
+
+      .price {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        .new {
+          color: #16a34a;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+
+        .old {
+          color: #999;
+          text-decoration: line-through;
+          font-size: 0.85rem;
+        }
+
+        &.center {
+          justify-content: center;
+        }
+      }
+
+      /* ========== HÀNH ĐỘNG ========== */
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+
+        button {
+          flex: 1;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 0;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
+        .add-cart {
+          background: #1976d2;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          svg {
+            font-size: 1.2rem;
+          }
+
+          &:hover {
+            background: #1259a3;
+          }
+        }
+
+        .buy-now {
+          background: #16a34a;
+          color: #fff;
+
+          &:hover {
+            background: #128a3e;
+          }
+        }
+      }
+    }
+  }
+
+  /* ================== RESPONSIVE ================== */
+  @media (max-width: 1024px) {
+    .product-card {
+      width: 200px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .bestseller__list {
+      justify-content: center;
+    }
+
+    .product-card {
+      width: 45%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-card {
+      width: 100%;
+    }
+
+    .bestseller__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      
+
+      a {
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+/* ========== ANIMATION ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== RESPONSIVE HEADER ========== */
+@media (max-width: 900px) {
+  .header__hero {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 50px 0;
+
+    .header__hero-content {
+      padding: 0 5%;
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .header__hero-image {
+      justify-content: center;
+      padding: 0;
+
+      img {
+        max-width: 90%;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .header__hero {
+    padding: 40px 0;
+    gap: 24px;
+
+    .header__hero-content {
+      padding: 0 4%;
+      h4 {
+        font-size: 1rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+
+    .header__hero-image img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  }
+}
