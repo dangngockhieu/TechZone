@@ -133,3 +133,20 @@ export const deleteProduct = (id: number) => {
   const URL_BACKEND = `/product/products/${id}`;
   return axios.delete(URL_BACKEND);
 };
+
+// ==================== CART API ====================
+export const getNumberCart = () => {
+  const URL_BACKEND = `/cart/number-cart`;
+  return axios.get(URL_BACKEND);
+}
+
+// CART API
+export const addProductToCart = (productID: number) => {
+  const URL_BACKEND = `/cart/cart`;
+  return axios.post(URL_BACKEND, { productID });
+};
+
+export const buyNow = (productID: number) => {
+  const URL_BACKEND = `/cart/buy-now?productID=${productID}`;
+  return axios.post(URL_BACKEND);
+};
