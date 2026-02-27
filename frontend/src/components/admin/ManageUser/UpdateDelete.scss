@@ -1,0 +1,86 @@
+.modal-content {
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  font-family: "Poppins", sans-serif;
+
+  .modal-header {
+    background: #1e6fa9;
+    color: white;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+
+      label {
+        font-weight: 500;
+        color: #333;
+      }
+
+      input,
+      select {
+        border-radius: 8px;
+        border: 1.5px solid #ccc;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+        transition: 0.2s;
+        width: 100%;
+
+        &:focus {
+          border-color: #007bff;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+          outline: none;
+        }
+      }
+
+      .col-md-6,
+      .col-md-4 {
+        flex: 1 1 calc(50% - 1rem);
+        min-width: 200px;
+      }
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 1rem 1.5rem;
+
+    button {
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+
+      &.btn-primary {
+        background: #007bff;
+        border: none;
+
+        &:hover {
+          background: #0056b3;
+        }
+      }
+
+      &.btn-secondary {
+        border: none;
+
+        &:hover {
+          background: #5a6268;
+        }
+      }
+    }
+  }
+}

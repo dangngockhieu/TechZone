@@ -1,0 +1,230 @@
+.manage-user-container {
+  padding: 1rem 2rem;
+  background-color: #f9fafb;
+  min-height: 90vh;
+  font-family: "Poppins", sans-serif;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background-color: #f9fafb;
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    // --- Nhóm nút và search
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      // Ô tìm kiếm
+      .search-box {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1.8px solid #d0d0d0;
+        border-radius: 30px;
+        padding: 4px 12px;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+        &:focus-within {
+          border-color: #0078ff;
+          box-shadow: 0 0 4px rgba(0, 120, 255, 0.3);
+        }
+
+        .search-icon-btn,
+        .search-clear-btn {
+          background: transparent;
+          border: none;
+          outline: none;
+          padding: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          list-style: none;
+        }
+
+        .search-icon,
+        .clear-icon {
+          font-size: 16px;
+          color: #555;
+          transition: transform 0.2s ease, color 0.2s ease;
+
+          &:hover {
+            color: #0078ff;
+            transform: scale(1.1);
+          }
+        }
+
+        input {
+          flex: 1;
+          border: none;
+          outline: none;
+          padding: 8px 10px;
+          font-size: 15px;
+          background: transparent;
+          color: #222;
+
+          &::placeholder {
+            color: #999;
+            font-style: italic;
+          }
+        }
+      }
+
+      // Nút tạo mới user
+      .btn-create {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        svg {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  // --- Nội dung bảng user
+  .users-content {
+    margin-top: 1rem;
+    .table-users-container {
+      background: #f9fafb;
+      
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+
+        th {
+          background-color: #d1daec;
+          color: #333;
+          text-align: center;
+          font-weight: 600;
+          border-right: 1px solid #bfc0c2;
+        }
+
+        /* === Hàng chẵn/lẻ khác màu - Ưu tiên cao hơn Bootstrap === */
+        tbody tr:nth-child(odd) td {
+          background-color: #f9fafb !important;
+        }
+        tbody tr:nth-child(even) td {
+          background-color: #dfdede !important;
+        }
+        tbody tr:hover td {
+          background-color: #e0e7ff !important;
+          transition: background-color 0.25s ease;
+        }
+
+        tbody tr td {
+          text-align: center;
+          vertical-align: middle;
+          border-right: 1px solid #bfc0c2;
+        }
+
+        button {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          border: none;
+          border-radius: 0.4rem;
+          padding: 0.35rem 0.6rem;
+          cursor: pointer;
+          transition: transform 0.15s ease;
+
+          &:hover {
+            transform: scale(1.05);
+          }
+
+          svg {
+            font-size: 1.1rem;
+          }
+
+          &.btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+          }
+
+          &.btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+          }
+
+          &.btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+          }
+        }
+      }
+    }
+    // Phân trang ReactPaginate
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+
+      .page-item {
+        .page-link {
+          border-radius: 0.5rem;
+          padding: 0.4rem 0.8rem;
+          color: #007bff;
+          border: 1px solid #dee2e6;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: #007bff;
+            color: #fff;
+          }
+        }
+
+        &.active .page-link {
+          background-color: #007bff;
+          border-color: #007bff;
+          color: #fff;
+        }
+      }
+    }
+  
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

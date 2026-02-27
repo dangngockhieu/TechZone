@@ -2,6 +2,22 @@ import type { OrderItem, Product, ProductFilters, ProductInOrder } from '../inte
 import axios from '../utils/axiosCustomize';
 // ========== User API ==========
 
+export const getUserWithPaginate = (page: number, limit: number, search = "") => {
+  const URL_BACKEND = `/user/users-paginate?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`;
+  return axios.get(URL_BACKEND);
+};
+
+export const createUserForAdmin = (email: string, name: string, password: string, role: string) => {
+  const URL_BACKEND = '/user/user';
+  const data = { email, name, password, role };
+  return axios.post(URL_BACKEND, data);
+};
+
+export const changeRoleUserForAdmin = (id: number, role: string) => {
+  const URL_BACKEND = `/user/user-role/${id}`;
+  return axios.patch(URL_BACKEND, { role });
+};
+
 export const changePassword = (oldPassword: string, newPassword: string) => {
   const URL_BACKEND = '/user/change-password';
   const data = { oldPassword, newPassword };

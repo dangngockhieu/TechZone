@@ -14,6 +14,9 @@ import CartPage from './components/user/Cart-Checkout/CartPage.js';
 import Product_Detail from './components/user/Product/Product_Detail.js';
 import Product from './components/user/Product/Product.js';
 import LandingPage from './components/user/Product/LandingPage.js';
+import AdminRoute from './pages/admin.private.route.js';
+import AdminLayout from './components/admin/AdminLayout.js';
+import ManagerUser from './components/admin/ManageUser/ManagerUser.js';
 const App = () => {
   return (
       <Routes>
@@ -26,6 +29,10 @@ const App = () => {
           <Route path="orders" element={<PrivateRoute><OrderHistory /></PrivateRoute>} />
           <Route path="warranty" element={<Warranty />} />
           <Route path="privacy" element={<Privacy />} />
+        </Route>
+
+         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route path="users" element={<ManagerUser />} />
         </Route>
         
         <Route path="/login" element={<Login />} />
