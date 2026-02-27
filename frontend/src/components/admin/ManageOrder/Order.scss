@@ -1,0 +1,118 @@
+.order-shipping-wrap {
+  .empty-state {
+    text-align: center;
+    color: #6b7280;
+    padding: 48px 12px;
+    svg { color: #9ca3af; margin-bottom: 8px; }
+  }
+
+
+  .list-head {
+    margin-bottom: 12px;
+    &.shipping { display: flex; gap: 8px; align-items: center; }
+    h3 { margin: 0; font-size: 16px; }
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e6e9ee;
+
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+
+      th, td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      th {
+        background: #dbdbdb;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      tr:hover td {
+        background: rgba(37,99,235,0.03);
+      }
+
+      .amount { font-weight: 700; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+
+      .actions-col {
+        display: flex;
+        gap: 8px;
+        .btn {
+          padding: 6px 10px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          font-weight: 600;
+          &.view { background: #fde68a; }
+        }
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 24px;
+
+    li a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #2563eb;
+        color: #fff;
+      }
+    }
+
+    .active a {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
+  }
+}
+@media (max-width: 768px) {
+  .order-shipping-wrap, .order-pending-wrap {
+    .table-wrap {
+      overflow-x: auto;
+
+      .order-table {
+        min-width: 600px; // vẫn scroll được
+        th, td { padding: 8px 10px; font-size: 12px; }
+      }
+    }
+
+    .actions-col .btn {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .pagination li a { width: 30px; height: 30px; font-size: 12px; }
+  }
+}
+
+@media (max-width: 480px) {
+  .order-shipping-wrap, .order-pending-wrap {
+    .list-head h3 { font-size: 14px; }
+    .empty-state p { font-size: 14px; }
+  }
+}
+

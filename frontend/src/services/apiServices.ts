@@ -218,3 +218,28 @@ export const buyAgain = (products: ProductInOrder[]) => {
   const URL_BACKEND = `/order/buy-again`;
   return axios.post(URL_BACKEND, { products });
 }
+
+export const getOrderPendingForAdmin = (page: number, limit: number) => {
+  const URL_BACKEND = `/order/orders/pending?page=${page}&limit=${limit}`;
+  return axios.get(URL_BACKEND);
+};
+
+export const getOrderForAdmin = (page: number, limit: number, status: string) => {
+  const URL_BACKEND = `/order/orders?page=${page}&limit=${limit}&status=${status}`;
+  return axios.get(URL_BACKEND);
+}
+
+export const getOrderItem = (orderID: number) => {
+  const URL_BACKEND = `/order/orders-item?orderID=${orderID}`;
+  return axios.get(URL_BACKEND);
+}
+
+export const updatePendingtoShipping = (orderID: number, trackingCode: string, expectedDate: string) => {
+  const URL_BACKEND = `/order/order-to-shipping?orderID=${orderID}`;
+  return axios.patch(URL_BACKEND, { trackingCode, expectedDate });
+}
+
+export const deleteOrder = (orderID: number) => {
+  const URL_BACKEND = `/order/order?orderID=${orderID}`;
+  return axios.delete(URL_BACKEND);
+}

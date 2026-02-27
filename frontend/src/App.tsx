@@ -17,6 +17,8 @@ import LandingPage from './components/user/Product/LandingPage.js';
 import AdminRoute from './pages/admin.private.route.js';
 import AdminLayout from './components/admin/AdminLayout.js';
 import ManagerUser from './components/admin/ManageUser/ManagerUser.js';
+import ManageOrder from './components/admin/ManageOrder/ManageOrder.js';
+import ManageProduct from './components/admin/ManageProduct/ManageProduct.js';
 const App = () => {
   return (
       <Routes>
@@ -32,6 +34,8 @@ const App = () => {
         </Route>
 
          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route path="products" element={<ManageProduct />} />
+          <Route path="orders" element={<ManageOrder />} />
           <Route path="users" element={<ManagerUser />} />
         </Route>
         
