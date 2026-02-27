@@ -1,4 +1,4 @@
-import type { Product, ProductFilters } from '../interfaces';
+import type { OrderItem, Product, ProductFilters, ProductInOrder } from '../interfaces';
 import axios from '../utils/axiosCustomize';
 // ========== User API ==========
 
@@ -166,3 +166,27 @@ export const buyNow = (productID: number) => {
   const URL_BACKEND = `/cart/buy-now?productID=${productID}`;
   return axios.post(URL_BACKEND);
 };
+
+// ==================== ORDER API ====================
+
+export const createOrder = (name: string, address: string, phone: string, items: OrderItem[], totalPrice: number, paymentMethod: string) => {
+  const URL_BACKEND = '/order/order';
+  const data = { recipientName: name, address: address, phone: phone, items: items, totalPrice: totalPrice, paymentMethod: paymentMethod };
+  return axios.post(URL_BACKEND, data);
+}
+
+export const getMyOrders = (status: string) => {
+  const URL_BACKEND = `/order/my-orders?status=${status}`; 
+  return axios.get(URL_BACKEND);
+};
+
+export const updateOrderForUser = (orderID: number, status: string) => {
+  const URL_BACKEND = `/order/order?orderID=${orderID}`;
+  const data = { status };
+  return axios.patch(URL_BACKEND, data);
+}
+
+export const buyAgain = (products: ProductInOrder[]) => {
+  const URL_BACKEND = `/order/buy-again`;
+  return axios.post(URL_BACKEND, { products });
+}

@@ -4,11 +4,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaArrowCircleLeft } from "react-icons/fa";
 import { BsCart4 } from "react-icons/bs";
+import { useDispatch } from "react-redux";
+import { removeItem } from "../../../redux/slices/cartSlice";
 import type { Item } from "../../../interfaces";
+import { createOrder, deleteCartItem } from '../../../services/apiServices';
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const Checkout = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { checkoutItems, totalAmount } = location.state || {};
 
     const items: Item[] = Array.isArray(checkoutItems) ? checkoutItems : [];
@@ -41,6 +45,52 @@ const Checkout = () => {
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString('vi-VN') + ' đ';
   };
+
+  const handleCheckout = async () => {
+  try {
+    const orderItems = items.map(item => ({
+      productID: item.id,
+      quantity: item.number,
+      price: item.price
+    }));
+
+    //  Tạo Order
+    const response = await createOrder(
+      recipient.name,
+      recipient.address,
+      recipient.phone,
+      orderItems,
+      total,
+      paymentMethod
+    );
+    console.log('Create Order Response:', response);
+    if (!response?.data?.success) {
+      toast.error("Đặt hàng thất bại. Vui lòng thử lại.");
+      return navigate('/cart');
+    }
+
+
+    // COD thì giữ nguyên
+    if (paymentMethod === "COD") {
+      toast.success("Đặt hàng thành công!");
+      for (const item of items) {
+        const res = await deleteCartItem(item.id);
+        if (res?.data?.success) dispatch(removeItem(String(item.id)));
+      }
+      return navigate('/payment-success');
+    }
+
+    // BANK → VNPay
+    if (paymentMethod === "BANK") {
+      return;
+    }
+
+  } catch (error) {
+    console.log(error);
+    toast.error("Đã xảy ra lỗi. Vui lòng thử lại.");
+    navigate('/cart');
+  }
+};
   
 
   return (
@@ -139,6 +189,13 @@ const Checkout = () => {
           <span className="value total-amount">{formatCurrency(total)}</span>
         </div>
 
+        <button 
+          className="confirm-button"
+          onClick={handleCheckout}
+          disabled={!recipient.name || !recipient.address || !recipient.phone} 
+        >
+          XÁC NHẬN THANH TOÁN
+        </button>
       </div>
       </div>
       
