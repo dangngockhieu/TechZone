@@ -124,6 +124,18 @@ export const createProduct = (formData: FormData) => {
   });
 };
 
+// Upload Excel file to import multiple products
+export const uploadExcel = (file: File) => {
+  const formData = new FormData();
+  formData.append("excel", file);
+
+  return axios.post("/product/upload-excel", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 // Update product information (excluding images)
 export const updateProduct = (id: number, products: Product) => {
   const URL_BACKEND = `/product/products/${id}`;

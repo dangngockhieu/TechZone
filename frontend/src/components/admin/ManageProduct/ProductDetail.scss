@@ -1,0 +1,387 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px 35px;
+  max-width: 850px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  font-family: "Poppins", sans-serif;
+  animation: fadeIn 0.25s ease;
+
+  h4 {
+    margin-bottom: 15px;
+    color: #1ea971;
+    font-weight: 600;
+  }
+}
+
+.image-edit-row,
+.image-gallery,
+.existing-images,
+.preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.image-edit-row {
+  margin-bottom: 20px;
+  justify-content: space-between;
+
+  .existing-images,
+  .add-new-images {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  h5 {
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.existing-item,
+.preview-item,
+.gallery-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 0, 0, 0.8);
+    }
+  }
+}
+
+.zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  animation: fadeIn 0.2s ease;
+
+  .zoomed-img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    animation: zoomIn 0.25s ease;
+  }
+}
+
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11000;
+  animation: fadeIn 0.25s ease;
+
+  .confirm-box {
+    background: #fff;
+    padding: 25px 35px;
+    border-radius: 12px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    animation: scaleUp 0.2s ease;
+
+    p {
+      font-size: 1.05rem;
+      color: #333;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+
+      .btn-cancel,
+      .btn-confirm {
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-cancel {
+        background: #ccc;
+        color: #333;
+
+        &:hover {
+          background: #b1b1b1;
+        }
+      }
+
+      .btn-confirm {
+        background: #e74c3c;
+        color: #fff;
+
+        &:hover {
+          background: #c0392b;
+        }
+      }
+    }
+  }
+}
+
+.form-edit-product {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    label {
+      font-weight: 500;
+      color: #444;
+    }
+
+    input,
+    select,
+    textarea {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+
+      &:focus {
+        outline: none;
+        border-color: #1ea971;
+        box-shadow: 0 0 0 2px rgba(30, 169, 113, 0.2);
+      }
+    }
+
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary {
+      background: #ccc;
+      color: #333;
+
+      &:hover {
+        background: #b1b1b1;
+      }
+    }
+
+    .btn-primary {
+      background: #1ea971;
+      color: #fff;
+
+      &:hover {
+        background: #159a66;
+      }
+    }
+  }
+}
+
+.detail-info {
+  margin-top: 20px;
+
+  h5 {
+    color: #1ea971;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .detail-group-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap; 
+
+    .detail-group-item {
+      flex: 1; 
+      min-width: 300px; 
+      
+      h5 {
+          margin-top: 0;
+      }
+    }
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 6px 20px;
+    margin-bottom: 15px;
+
+    p {
+      font-size: 0.95rem;
+      color: #444;
+      margin: 0;
+
+      strong {
+        color: #000;
+      }
+    }
+  }
+
+  .detail-extra {
+    padding: 10px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}
+
+/* ===== ANIMATIONS  ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== RESPONSIVE  ===== */
+@media (max-width: 768px) {
+  .modal-box {
+    padding: 20px;
+  }
+
+  .image-edit-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .existing-item,
+  .preview-item,
+  .gallery-item {
+    width: 100px;
+    height: 100px;
+  }
+
+  .detail-info .detail-group-container {
+      flex-direction: column; 
+      gap: 10px; 
+      
+      .detail-group-item {
+          min-width: 100%;
+      }
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

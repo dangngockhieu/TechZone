@@ -166,6 +166,35 @@ export class ProductController {
     };
   }
 
+  // Import sản phẩm từ file Excel
+  @Post('upload-excel')
+  @UseInterceptors(FileInterceptor('excel', multerExcelConfig))
+  async importProductsFromExcel(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Vui lòng chọn file Excel!');
+    }
+    
+    try {
+      const importedCount = await this.productService.importProducts(file.path);
+      
+      // Xóa file Excel sau khi import thành công
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+      
+      return { 
+        success: true,
+        message: `Import thành công ${importedCount} sản phẩm` 
+      };
+    } catch (error) {
+      // Xóa file ngay cả khi có lỗi
+      if (file.path && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+      throw error;
+    }
+  }
+
   // Cập nhật sản phẩm
   @Put('products/:id')
   @Roles('ADMIN')

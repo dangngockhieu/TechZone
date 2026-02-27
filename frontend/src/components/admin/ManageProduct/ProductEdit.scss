@@ -1,0 +1,293 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px 35px;
+  max-width: 850px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: "Poppins", sans-serif;
+
+  h4 {
+    color: #1ea971;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+}
+
+/* FORM */
+.form-edit-product {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-weight: 500;
+      color: #444;
+    }
+
+    input,
+    select,
+    textarea {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+
+      &:focus {
+        outline: none;
+        border-color: #1ea971;
+      }
+    }
+
+    textarea {
+      min-height: 100px !important;
+      resize: vertical;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+    }
+  }
+}
+
+/* PHẦN ẢNH DƯỚI */
+.edit-images {
+  margin-top: 25px;
+
+  h5 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .image-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+
+    .image-item {
+      position: relative;
+
+      img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+      }
+
+      button {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background-color: #e74c3c;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        &:hover {
+          background-color: #c0392b;
+        }
+      }
+    }
+  }
+}
+
+/* ===  Nhu cầu sử dụng === */
+.features-section {
+  margin-top: 25px;
+
+  h5 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .feature-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .feature-item {
+      border: 1.5px solid #ccc;
+      padding: 7px 14px;
+      border-radius: 22px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #f9fafb;
+      user-select: none;
+
+      &:hover {
+        border-color: #1ea971;
+        background: #e8fff4;
+        color: #1ea971;
+      }
+
+      &.selected {
+        background: #1ea971;
+        color: #fff;
+        border-color: #1ea971;
+        font-weight: 600;
+        box-shadow: 0 0 6px rgba(30, 169, 113, 0.3);
+      }
+    }
+  }
+}
+
+/* NÚT DƯỚI CÙNG */
+.modal-actions.bottom {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary {
+    background: #ccc;
+    color: #333;
+
+    &:hover {
+      background: #b1b1b1;
+    }
+  }
+
+  .btn-primary {
+    background: #1ea971;
+    color: #fff;
+
+    &:hover {
+      background: #159a66;
+    }
+  }
+}
+
+/* POPUP XÁC NHẬN & ZOOM */
+.confirm-overlay,
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.zoom-overlay img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+.confirm-box {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+
+  .confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+
+    .btn-cancel {
+      background: #ccc;
+      color: #333;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-confirm {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .modal-box {
+    padding: 18px 22px;
+    max-width: 95%;
+
+    h4 {
+      font-size: 1.2rem;
+    }
+  }
+
+  .image-item {
+    width: 90px;
+    height: 90px;
+  }
+
+  .feature-item {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+
+  .modal-actions.bottom {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-box {
+    padding: 15px;
+  }
+
+  .image-item {
+    width: 75px;
+    height: 75px;
+  }
+
+  .feature-item {
+    font-size: 0.8rem;
+  }
+}

@@ -4,9 +4,10 @@ import { Pool } from 'pg';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
+import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ProductFilters} from './interface';
+import { Product, ProductFilters} from './interface';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -470,6 +471,72 @@ export class ProductService {
             client.release();
         }
     }
+
+    // Thêm nhiều sản phẩm từ file Excel 
+    async importProducts(filePath: string) {
+        const workbook = XLSX.readFile(filePath);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        if (!rows.length) {
+            throw new Error("File Excel không có dữ liệu");
+        }
+
+        for (const row of rows) {
+        const rowData = row as any;
+
+        // ÉP FIELD DATA TỪ EXCEL 
+        const data: Product = {
+            name: rowData.name || "",
+            originalPrice: +rowData.originalPrice || 0,
+            quantity: +rowData.quantity || 0,
+            coupon: +rowData.coupon || 0,
+
+            // String fields
+            warranty: rowData.warranty?.toString() || "",
+            infor: rowData.infor?.toString() || "",
+            cpu: rowData.cpu?.toString() || "",
+            ram: rowData.ram?.toString() || "",
+            storage: rowData.storage?.toString() || "",
+            screen: rowData.screen?.toString() || "",
+            graphicsCard: rowData.graphicsCard?.toString() || "",
+            battery: rowData.battery?.toString() || "",
+            weight: rowData.weight?.toString() || "",
+            releaseYear: rowData.releaseYear?.toString() || "",
+            category: rowData.category?.toString() || "",
+            factory: rowData.factory?.toString() || "",
+        };
+
+        let finalPrice = data.originalPrice;
+        const couponValue = data.coupon;
+
+        let roundedPrice = data.originalPrice;
+        if (couponValue > 0) {
+            finalPrice = data.originalPrice - (data.originalPrice * couponValue / 100);
+            roundedPrice = Math.floor(finalPrice / 10000) * 10000;
+        }
+
+        // INSERT USING POOL
+        const insertQuery = `
+            INSERT INTO "products" (
+                name, "originalPrice", price, coupon, quantity, warranty, infor, 
+                cpu, ram, storage, screen, "graphicsCard", battery, weight, 
+                "releaseYear", category, factory, sold
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 0
+            )
+        `;
+        
+        await this.pool.query(insertQuery, [
+            data.name, data.originalPrice, roundedPrice, data.coupon, data.quantity,
+            data.warranty, data.infor, data.cpu, data.ram, data.storage,
+            data.screen, data.graphicsCard, data.battery, data.weight,
+            data.releaseYear, data.category, data.factory
+        ]);
+    }
+
+    return rows.length;
+}
 
     // Thêm nhiều ảnh (khi edit muốn thêm ảnh mới) 
     async addProductImages (productID: number, files: Array<Express.Multer.File>) {
