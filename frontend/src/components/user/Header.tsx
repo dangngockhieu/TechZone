@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
-import { BsEnvelopeFill, BsCaretDownFill } from "react-icons/bs";
+import { BsCartPlusFill, BsEnvelopeFill, BsCaretDownFill } from "react-icons/bs";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { doLogout } from "../../redux/slices/userSlice";
+import { clearCart, setCartCount } from "../../redux/slices/cartSlice";
 import { logout } from "../../services/apiServices";
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 import ChangePassword from './ChangePassword';
 import { NavLink, Link } from "react-router-dom";
+import { getNumberCart} from "../../services/apiServices";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, account } = useAppSelector((state) => state.user);
+  const numberCart = useAppSelector((state) => state.cart.totalItems);
 
   const [showMenu, setShowMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -32,8 +36,25 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!isAuthenticated) return;
+      
+      try {
+        const res = await getNumberCart();
+        if (res?.data?.success && res?.data?.data?.totalCart) {
+          dispatch(setCartCount(res.data.data.totalCart));
+        }
+      } catch (err) {
+        console.error('Error fetching cart count:', err);
+      }
+    };
 
-const handleLogout = async() => {
+    fetchCart();
+  }, [dispatch, isAuthenticated]);
+
+
+  const handleLogout = async() => {
       try {
         await logout();
       } catch (err) {
@@ -41,8 +62,18 @@ const handleLogout = async() => {
         console.error('Logout request failed', err);
       }
       dispatch(doLogout());
+      dispatch(clearCart());
       setShowMenu(false);
       navigate('/login');
+  };
+
+  const handleOpenCart = () => {
+    if(isAuthenticated){
+      navigate('/cart');
+    }
+    else{
+      toast.info("Vui lòng đăng nhập để xem giỏ hàng");
+    }
   };
 
 
@@ -85,6 +116,10 @@ const handleLogout = async() => {
         </div>
 
         <div className="header__icons" ref={menuRef}>
+          <button className="icon-btn cart left" onClick={handleOpenCart}>
+            <BsCartPlusFill />
+            <span className="badge">{numberCart ?? 0}</span>
+          </button>
           <button
             className="icon-btn"
             onClick={() => setShowMenu((prev) => !prev)}
@@ -130,7 +165,8 @@ const handleLogout = async() => {
                     )}
                   </div>
 
-                    <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
+
+                  <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
                 </>
               )}
             </div>
@@ -145,5 +181,3 @@ const handleLogout = async() => {
 };
 
 export default Header;
-
-

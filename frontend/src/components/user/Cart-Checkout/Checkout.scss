@@ -1,0 +1,255 @@
+@use "sass:color"; 
+
+$primary-color: #6a9c7b; 
+$secondary-color: #f5f2f2; 
+$text-color: #333;
+$border-color: #a09e9e;
+$total-amount-color: #d0011b;
+$bg-recipient: #e0e6ed;
+
+.checkout-confirmation-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.summary-wrapper {
+    margin-bottom: 20px;
+    width: 100%;
+    
+    .order-summary-list {
+        padding: 0; 
+        border-radius: 8px;
+        border: 1px solid color.adjust($border-color, $lightness: 5%); 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        .summary-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 10px 15px; 
+            margin: 0; 
+            border-bottom: 1px solid #ccc;
+            color: $text-color;
+        }
+        
+        .product-list-preview {
+            list-style: none;
+            padding: 0 15px; 
+            margin: 0;
+            
+            .summary-item {
+                display: flex;
+                align-items: center;
+                padding: 15px 0; 
+                border-bottom: 1px dashed #eee;
+                
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .item-img-preview {
+                    width: 80px;
+                    height: 70px;
+                    border-radius: 4px;
+                    margin-right: 15px;
+                    flex-shrink: 0; 
+                }
+                
+                .product-details-content { 
+                    flex-grow: 1;
+                }
+
+                .item-name {
+                    font-weight: 500;
+                    font-size: 1rem;
+                    color: $text-color;
+                }
+
+                .item-qty {
+                    font-size: 1.2rem;
+                    color: #555;
+                    flex-shrink: 0; 
+                    text-align: right;
+                    margin-left: 40px; 
+                    width: 100px; 
+                }
+                
+                .item-price {
+                    margin-left: 20px; 
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    color: $total-amount-color;
+                    flex-shrink: 0; 
+                    width: 120px; 
+                    text-align: right;
+                }
+            }
+        }
+    }
+}
+
+
+.two-column-layout {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    
+    @media (max-width: 768px) {
+        flex-direction: column; 
+        gap: 20px;
+    }
+}
+
+
+.recipient-info-block,
+.payment-summary-block {
+    flex: 1; 
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.recipient-info-block {
+    background: $secondary-color; 
+    border: 1px solid color.adjust($border-color, $lightness: 5%); 
+    
+    .input-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            display: block;
+            padding: 12px;
+            border: 1px solid $border-color;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+
+            &:focus {
+                border-color: $primary-color;
+                outline: none;
+            }
+        }
+    }
+
+    .back-to-cart-link {
+        display: flex;
+        align-items: center;
+        margin-top: 2rem;
+        color: #515151;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+        margin-left: 7rem;
+        
+        &:hover {
+            color:#131212
+        }
+    }
+}
+
+
+.payment-summary-block {
+    background: $secondary-color; 
+    border: 1px solid color.adjust($border-color, $lightness: 5%); 
+
+    .payment-methods-selection {
+        margin-bottom: 20px;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    
+        .selection-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #555;
+        }
+    
+        .method-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+    
+            input[type="radio"] {
+                margin-right: 10px;
+                accent-color: $primary-color; 
+                width: 16px;
+                height: 16px;
+            }
+    
+            label {
+                font-size: 0.95rem;
+                font-weight: 500;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 1rem;
+        color: $text-color;
+        
+        &.display-method {
+             font-size: 1.1rem;
+             margin-bottom: 5px;
+        }
+        
+        &.total {
+            padding: 15px 0 20px 0;
+
+            .label, .value {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+
+            .total-amount {
+                color: $total-amount-color;
+            }
+        }
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px solid #a5a2a2;
+        margin: 10px 0;
+    }
+
+    .confirm-button {
+        width: 100%;
+        padding: 15px;
+        margin-top: 20px;
+        background-color: #fce8a9;
+        color: $text-color; 
+        
+        border: 1px solid color.adjust(#fce8a9, $lightness: -10%);
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, opacity 0.3s;
+        text-transform: uppercase;
+
+        &:hover:not(:disabled) {
+            background-color: color.adjust(#fce8a9, $lightness: -5%);
+        }
+        
+        &:disabled {
+            background-color: #afaeae;
+            border-color: #aaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    }
+}

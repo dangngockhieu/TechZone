@@ -6,7 +6,9 @@ import banner3 from "../../../assets/banner_header3.jpg";
 import banner4 from "../../../assets/banner_header4.png";
 import "./LandingPage.scss";
 import { FaStar } from "react-icons/fa6";
-import { getTopSellingLaptop, getTopSellingPhone} from "../../../services/apiServices";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { setCartCount } from "../../../redux/slices/cartSlice";
+import { getTopSellingLaptop, getTopSellingPhone, addProductToCart, getNumberCart, buyNow} from "../../../services/apiServices";
 import { toast } from "react-toastify";
 import { FcCellPhone } from "react-icons/fc";
 import { ImFire } from "react-icons/im";
@@ -16,12 +18,63 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const banners = [banner1, banner2, banner3, banner4];
 
 const LandingPage = () => {
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.user);
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [topLaptops, setTopLaptops] = useState<ProductSummary[]>([]);
   const [topPhones, setTopPhones] = useState<ProductSummary[]>([]);
 
 
+  const handleAddToCart = async (productID: number) => {
+    if (!isAuthenticated) {
+      toast.warning("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+
+    try {
+      const res = await addProductToCart(productID);
+      
+      if (res?.data?.success) {
+        toast.success("Đã thêm vào giỏ hàng!");
+        const cartRes = await getNumberCart();
+        console.log('Cart response after add:', cartRes?.data);
+        if (cartRes?.data?.success && cartRes?.data?.data?.totalCart !== undefined) {
+          dispatch(setCartCount(cartRes.data.data.totalCart));
+        }
+      } else {
+        toast.error(res?.data?.message || "Không thể thêm vào giỏ hàng");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+    }
+  };
+
+  const handleBuyNow = async (productID: number) => {
+    if (!isAuthenticated) {
+      toast.warning("Vui lòng đăng nhập để mua sản phẩm!");
+      return;
+    }
+
+    try {
+      const res = await buyNow(productID);
+      
+      if (res?.data?.success) {
+        const cartRes = await getNumberCart();
+        console.log('Cart response after buy now:', cartRes?.data);
+        if (cartRes?.data?.success && cartRes?.data?.data?.totalCart !== undefined) {
+          dispatch(setCartCount(cartRes.data.data.totalCart));
+        }
+        navigate('/cart');
+      } else {
+        toast.error(res?.data?.message || "Không thể mua sản phẩm");
+      }
+    } catch (error) {
+      console.error("Error buying now:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -89,6 +142,15 @@ const LandingPage = () => {
             <div className={`price ${!hasDiscount ? "center" : ""}`}>
               <span className="new">{newPrice}</span>
               {hasDiscount && <span className="old">{oldPrice}</span>}
+            </div>
+
+            <div className="actions">
+              <button className="add-cart" onClick={() => handleAddToCart(item.id)}>
+                Add To Cart
+              </button>
+              <button className="buy-now" onClick={() => handleBuyNow(item.id)}>
+                Buy Now
+              </button>
             </div>
           </div>
         </div>

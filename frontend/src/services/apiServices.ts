@@ -146,6 +146,22 @@ export const addProductToCart = (productID: number) => {
   return axios.post(URL_BACKEND, { productID });
 };
 
+export const getCart = () => {
+  const URL_BACKEND = `/cart/cart`;
+  return axios.get(URL_BACKEND);
+};
+
+export const updateCartQuantity = (productID: number, newNumber: number) => {
+  const URL_BACKEND = `/cart/cart?productID=${productID}`;
+  return axios.patch(URL_BACKEND, { newNumber });
+};
+
+export const deleteCartItem = (productID: number) => {
+  const URL_BACKEND = `/cart/cart?productID=${productID}`;
+  return axios.delete(URL_BACKEND);
+};
+
+
 export const buyNow = (productID: number) => {
   const URL_BACKEND = `/cart/buy-now?productID=${productID}`;
   return axios.post(URL_BACKEND);
