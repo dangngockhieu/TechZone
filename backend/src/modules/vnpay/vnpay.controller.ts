@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { VnpayService } from './vnpay.service';
 import { CreatePaymentDTO } from './dto';
-import { JwtAuthGuard } from '../../auth/guard';
+import { JwtAuthGuard } from '../../auth/jwt';
 import { Public } from '../../auth/decorater/customize';
 import { Request, Response } from 'express';
 import { ReturnQueryFromVNPay } from 'vnpay';

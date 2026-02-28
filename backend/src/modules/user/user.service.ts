@@ -5,6 +5,7 @@ import * as argon from 'argon2';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
+import { UserFindEmail, UserPaginate } from './interface';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -27,14 +28,16 @@ export class UserService {
     }
 
     // Find user by email 
-    async findUserByEmail(email: string): Promise<any> {
-        const query = 'SELECT * FROM "users" WHERE email = $1';
+    async findUserByEmail(email: string): Promise<UserFindEmail> {
+        const query = `SELECT id, name, email, password, role, "refresh_token", 
+        "verification_code", "sent_at", "code_expired", "isVerified" 
+        FROM "users" WHERE email = $1`;
         const result = await this.pool.query(query, [email]);
         return result.rows[0];
     }
 
     // Get User With Paginateion 
-    async getUserWithPaginate(page: number, limit: number, search: string) : Promise<{users: any[], total: number}> {
+    async getUserWithPaginate(page: number, limit: number, search: string) : Promise<{users: UserPaginate[], total: number}> {
         const offset = (page - 1) * limit;
         let query1 = `
             SELECT id AS "userID", name, email, role

@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './help/database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './help/mail/mail.module';
-import { JwtAuthGuard } from './auth/guard';
+import { JwtAuthGuard } from './auth/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';

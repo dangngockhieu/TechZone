@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { MailService } from '../help/mail/mail.service';
 import { UserService } from '../modules/user/user.service';
 import { BadRequestException, NotFoundException, ConflictException, UnauthorizedException } from '../help/exception';
+import { UserAccount } from './interface';
 
 @Injectable()
 export class AuthService {
@@ -98,7 +99,7 @@ export class AuthService {
     }
 
     // TẠO TOKEN 
-    private async generateToken(user: any): Promise<{ access_token: string; refresh_token: string }> {
+    private async generateToken(user: UserAccount): Promise<{ access_token: string; refresh_token: string }> {
         const payload = { sub: user.id, email: user.email, name: user.name, role: user.role };
 
         const access_token = await this.jwt.signAsync(payload, {
@@ -143,17 +144,17 @@ export class AuthService {
     }
 
     // XÁC THỰC USER 
-    async validateUser(email: string, password: string) : Promise<any> {
+    async validateUser(email: string, password: string) : Promise<UserAccount> {
         const user = await this.userService.findUserByEmail(email);
         if (!user || !user.password || !user.isVerified) 
-            throw new BadRequestException('Tài khhoản không tồn tại hoặc chưa được xác thực');
+            throw new BadRequestException('Tài khoản không tồn tại hoặc chưa được xác thực');
         const ok = await argon.verify(user.password, password);
-        if (!ok) throw new BadRequestException('Sai mật khẩu');;
-        return user;
+        if (!ok) throw new BadRequestException('Sai mật khẩu');
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
     }
 
     // ĐĂNG NHẬP 
-    async login(user: any) : Promise<{ access_token: string; refresh_token: string; user: any }> {
+    async login(user: UserAccount) : Promise<{ access_token: string; refresh_token: string; user: UserAccount }> {
         const { access_token, refresh_token } = await this.generateToken(user);
         const hashed = await argon.hash(refresh_token);
         const query = `
@@ -186,7 +187,7 @@ export class AuthService {
     }
 
     // REFRESH TOKEN 
-    async postrefresh_token(refresh_token: string) : Promise<{ access_token: string; user: any }> {
+    async postrefresh_token(refresh_token: string) : Promise<{ access_token: string; user: UserAccount }> {
         let payload: any;
         try {
             payload = this.jwt.verify(refresh_token, {

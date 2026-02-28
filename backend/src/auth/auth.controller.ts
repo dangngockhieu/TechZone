@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Patch, Post, Query, Req, Res} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { RegisterDTO, LoginDTO, ResetPasswordDTO } from './dto';
 import { Public } from './decorater/customize';
 import { UnauthorizedException } from '../help/exception';
+import { UserAccount } from './interface';
+import { LocalAuthGuard } from './local';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService,
@@ -26,9 +28,9 @@ export class AuthController {
     // LOGIN 
     @Post('login')
     @Public()
-    async login(@Body() body: LoginDTO, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
-      const { email, password } = body;
-      const user = await this.authService.validateUser(email, password);
+    @UseGuards(LocalAuthGuard)
+    async login(@Body() _body: LoginDTO, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+      const user = req.user as UserAccount;
       const data = await this.authService.login(user);
       const isProd = this.config.get<string>('NODE_ENV') === 'production';
       if (req.cookies?.refresh_token) {
@@ -62,7 +64,7 @@ export class AuthController {
     // LOGOUT 
     @Post('logout')
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-      const email = (req.user as any)?.email;
+      const email = (req.user as UserAccount)?.email;
       if (!email) {
         throw new UnauthorizedException('No authenticated user found');
       }
