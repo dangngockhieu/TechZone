@@ -12,6 +12,7 @@ import { getTopSellingLaptop, getTopSellingPhone, addProductToCart, getNumberCar
 import { toast } from "react-toastify";
 import { FcCellPhone } from "react-icons/fc";
 import { ImFire } from "react-icons/im";
+import AiChatWidget from "./AiChatWidget";
 import type { ProductSummary } from "../../../interfaces";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -25,6 +26,7 @@ const LandingPage = () => {
   const [topLaptops, setTopLaptops] = useState<ProductSummary[]>([]);
   const [topPhones, setTopPhones] = useState<ProductSummary[]>([]);
 
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddToCart = async (productID: number) => {
     if (!isAuthenticated) {
@@ -193,6 +195,7 @@ const LandingPage = () => {
           {topPhones.length ? renderProducts(topPhones) : <p>Đang tải dữ liệu...</p>}
         </div>
       </section>
+      <AiChatWidget isOpen={isOpen} setIsOpen={setIsOpen} />
     </div>
   );
 };

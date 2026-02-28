@@ -1,4 +1,4 @@
-import type { OrderItem, Product, ProductFilters, ProductInOrder } from '../interfaces';
+import type { OrderItem, Product, ProductFilters, ProductInOrder, ProductView } from '../interfaces';
 import axios from '../utils/axiosCustomize';
 // ========== User API ==========
 
@@ -282,3 +282,14 @@ export const createVNPayment = async (orderID: number) => {
   const URL_BACKEND = `/vnpay/create`;
   return axios.post(URL_BACKEND, { orderID });
 };
+
+// ==================== AI CHAT API ====================
+export const askAiChat = async (question: string, context: ProductView[]) => {
+  const URL_BACKEND = `/chat/ask`;
+  return axios.post(URL_BACKEND, { question: question, context: context });
+};
+
+export const getAiChatHistory = async () => {
+  const URL_BACKEND = `/chat/history`;
+  return axios.get(URL_BACKEND);
+}

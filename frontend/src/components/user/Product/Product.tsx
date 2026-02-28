@@ -4,6 +4,7 @@ import { FaStar, FaChevronDown, FaChevronUp, FaAngleDown } from "react-icons/fa6
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setCartCount } from "../../../redux/slices/cartSlice";
 import { addProductToCart, getNumberCart, getFilteredProducts, buyNow } from "../../../services/apiServices";
+import AiChatWidget from "./AiChatWidget";
 import { toast } from "react-toastify";
 import acer from "../../../assets/acer.jpg";
 import asus from "../../../assets/asus.jpg";
@@ -203,6 +204,7 @@ const Product = () => {
     specs: {},
   });
 
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddToCart = async (productID: number) => {
     if (!isAuthenticated) {
@@ -670,6 +672,7 @@ const Product = () => {
           )}
         </div>
       </div>
+      <AiChatWidget isOpen={isOpen} setIsOpen={setIsOpen} />
     </div>
   );
 };
