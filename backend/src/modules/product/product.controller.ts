@@ -168,6 +168,7 @@ export class ProductController {
 
   // Import sản phẩm từ file Excel
   @Post('upload-excel')
+  @Roles('ADMIN')
   @UseInterceptors(FileInterceptor('excel', multerExcelConfig))
   async importProductsFromExcel(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -288,6 +289,18 @@ export class ProductController {
       data: {
         review
       } 
+    };
+  }
+
+  // Tính tổng số sản phẩm trong kho
+  @Get('count')
+  @Roles('ADMIN')
+  async countProducts() {
+    const count = await this.productService.countProducts();
+    return {
+      success: true,
+      message: 'Lấy tổng số sản phẩm thành công',
+      count: count
     };
   }
 }

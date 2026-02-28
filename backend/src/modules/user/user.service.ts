@@ -2,6 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ConflictException, BadRequestException, NotFoundException, UnauthorizedException } from '../../help/exception';
 import { Pool } from 'pg';
 import * as argon from 'argon2';
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 @Injectable()
 export class UserService {
@@ -101,5 +107,28 @@ export class UserService {
             WHERE id = $2
         `;
         await this.pool.query(query, [newRole, userID]);
+    }
+
+    // Count Users 
+    async countUsers(): Promise<number> {
+        const query = 'SELECT COUNT(*) AS total FROM "users" WHERE "isVerified" = true';
+        const result = await this.pool.query(query);
+        return parseInt(result.rows[0].total, 10);
+    }
+
+    // Count This Month Users 
+    async countThisMonthUsers(): Promise<number> {
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const startOfMonth = dayjs(vnNow).startOf('month').toDate();
+        const endOfMonth = dayjs(vnNow).endOf('month').toDate();
+
+        const query = `
+            SELECT COUNT(*) AS total
+            FROM "users"
+            WHERE "isVerified" = true
+            AND "sent_at" BETWEEN $1 AND $2
+        `;
+        const result = await this.pool.query(query, [startOfMonth, endOfMonth]);
+        return parseInt(result.rows[0].total, 10);
     }
 }

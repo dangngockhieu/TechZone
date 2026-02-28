@@ -390,6 +390,103 @@ export class OrderService {
         return Object.values(orders);
     }
 
+    // Thống kê số lượng đơn hàng trong tháng 
+    async countOrders(){
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const startOfMonth = dayjs(vnNow).startOf('month').toDate();
+        const endOfMonth = dayjs(vnNow).endOf('month').toDate();
+        const query1 = `
+            SELECT COUNT(*) AS "orderCount"
+            FROM "orders"
+            WHERE "orderDate" BETWEEN $1 AND $2
+            AND status <> 'CANCELLED'
+        `;
+        const query2 = `
+            SELECT COUNT(*) AS "orderCount"
+            FROM "orders"
+            WHERE "orderDate" BETWEEN $1 AND $2
+            AND status = $3
+        `;
+        try {
+            const [result, resultPending, resultShipping, resultCompleted] = await Promise.all([
+                this.pool.query(query1, [startOfMonth, endOfMonth]),
+                this.pool.query(query2, [startOfMonth, endOfMonth, 'PENDING']),
+                this.pool.query(query2, [startOfMonth, endOfMonth, 'SHIPPING']),
+                this.pool.query(query2, [startOfMonth, endOfMonth, 'COMPLETED']) 
+            ]);
+            return {
+                count: Number(result.rows[0]?.orderCount) || 0,
+                countPending: Number(resultPending.rows[0]?.orderCount) || 0,
+                countShipping: Number(resultShipping.rows[0]?.orderCount) || 0,
+                countCompleted: Number(resultCompleted.rows[0]?.orderCount) || 0
+            }
+        }catch (error) {
+            console.error('Lỗi tính tổng đơn hàng:', error);
+            throw new InternalServerErrorException('Database Error');
+        }
+    }
+
+    // Thống kê doanh thu trong tháng hiện tại 
+    async getRevenueThisMonth(){
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh");
+        const startOfCurrentMonth = vnNow.startOf('month').toDate();
+        const endOfCurrentMonth = vnNow.endOf('month').toDate();
+        const startOfPrevMonth = vnNow.subtract(1, 'month').startOf('month').toDate();
+        const endOfPrevMonth = vnNow.subtract(1, 'month').endOf('month').toDate();
+
+        const query =`
+            SELECT SUM("totalPrice") AS "revenue"
+            FROM "orders"
+            WHERE status = 'COMPLETED'
+            AND "orderDate" BETWEEN $1 AND $2
+        `;
+
+        const [result1, result2] = await Promise.all([
+            this.pool.query(query, [startOfCurrentMonth, endOfCurrentMonth]),
+            this.pool.query(query, [startOfPrevMonth, endOfPrevMonth]), 
+        ]);
+        const currentMonthRevenue = result1.rows[0]?.revenue || 0;
+        const prevMonthRevenue = result2.rows[0]?.revenue || 0;
+
+        let growth = 0;
+        if (prevMonthRevenue > 0) {
+            growth = ((currentMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100;
+        } else if (currentMonthRevenue > 0) {
+            growth = 100;
+        }
+
+        return {
+            currentMonthRevenue,
+            growth: Number(growth.toFixed(2)), 
+        }
+    }
+
+    // Thống kê doanh thu theo tháng 
+    async  getRevenueByMonth(){
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const year = dayjs(vnNow).year();
+
+        const startOfYear = dayjs().tz("Asia/Ho_Chi_Minh").year(year).startOf('year').toDate();
+        const endOfYear = dayjs().tz("Asia/Ho_Chi_Minh").year(year).endOf('year').toDate();
+        const query =`
+            SELECT "orderDate", "totalPrice"
+            FROM "orders"
+            WHERE status = 'COMPLETED'
+            AND "orderDate" BETWEEN $1 AND $2
+        `;
+        const resultData = await this.pool.query(query, [startOfYear, endOfYear]);
+        const result = resultData.rows;
+
+        const monthlyRevenue = Array(12).fill(0);
+        result.forEach((r) => {
+            const vnDate = dayjs(r.orderDate).tz("Asia/Ho_Chi_Minh");
+            const month = vnDate.month(); 
+            monthlyRevenue[month] += r.totalPrice;
+        });
+
+        return monthlyRevenue;
+    }
+    
     // Mua lại các sản phẩm trong đơn hàng trước đó
     async buyAgain(userID: number, products: ProductDTO[]): Promise<void> {
         const client = await this.pool.connect();

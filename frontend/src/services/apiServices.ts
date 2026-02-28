@@ -24,6 +24,16 @@ export const changePassword = (oldPassword: string, newPassword: string) => {
   return axios.patch(URL_BACKEND, data);
 };
 
+export const countUsersForAdmin = () => {
+  const URL_BACKEND = '/user/count';
+  return axios.get(URL_BACKEND);
+};
+
+export const countUsersThisMonthForAdmin = () => {
+  const URL_BACKEND = '/user/count-this-month';
+  return axios.get(URL_BACKEND);
+};
+
 // ========== Auth API ==========
 
 export const register = (email: string, name: string, password: string) => {
@@ -162,6 +172,11 @@ export const deleteProduct = (id: number) => {
   return axios.delete(URL_BACKEND);
 };
 
+export const countProductsForAdmin = () => {
+  const URL_BACKEND = '/product/count';
+  return axios.get(URL_BACKEND);
+};
+
 // ==================== CART API ====================
 export const getNumberCart = () => {
   const URL_BACKEND = `/cart/number-cart`;
@@ -243,6 +258,24 @@ export const deleteOrder = (orderID: number) => {
   const URL_BACKEND = `/order/order?orderID=${orderID}`;
   return axios.delete(URL_BACKEND);
 }
+
+// ==================== COUNT ORDERS API (Admin) ====================
+export const countOrdersThisMonth = () => {
+  const URL_BACKEND = '/order/count';
+  return axios.get(URL_BACKEND);
+};
+
+// ==================== REVENUE THIS MONTH API (Admin) ====================
+export const getRevenueThisMonthForAdmin = () => {
+  const URL_BACKEND = '/order/revenue-this-month';
+  return axios.get(URL_BACKEND);
+};
+
+// ==================== REVENUE BY MONTH API (Admin) ====================
+export const getRevenueByMonthForAdmin = () => {
+  const URL_BACKEND = '/order/revenue-by-month';
+  return axios.get(URL_BACKEND);
+};
 
 // ==================== VNPay API ====================
 export const createVNPayment = async (orderID: number) => {

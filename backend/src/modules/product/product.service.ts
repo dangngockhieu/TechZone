@@ -7,7 +7,7 @@ import * as timezone from 'dayjs/plugin/timezone';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Product, ProductFilters} from './interface';
+import { ProductFilters, Product} from './interface';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -682,6 +682,13 @@ export class ProductService {
         } finally {
             client.release();
         }
+    }
+
+    // Số sản phẩm trong kho
+    async countProducts() {
+        const query = `SELECT COUNT(*) AS count FROM "products"`;
+        const res = await this.pool.query(query);
+        return Number(res.rows[0].count) || 0;
     }
 }
 

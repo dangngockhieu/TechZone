@@ -2,6 +2,7 @@ import { Controller, Post, Req, Body, Get, Patch, Delete } from "@nestjs/common"
 import { OrderService } from "./order.service";
 import { CreateOrderDTO, OrderDTO } from "./interface";
 import { Request } from 'express';
+import { Roles } from "src/auth/decorater/roles";
 
 @Controller('order')
 export class OrderController {
@@ -27,6 +28,7 @@ export class OrderController {
 
     // Lấy List Order chờ xử lý 
     @Get('orders/pending')
+    @Roles('ADMIN')
     async getPendingOrders(@Req() req: Request) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -43,6 +45,7 @@ export class OrderController {
     }
 
     @Delete('order')
+    @Roles('ADMIN')
     async deleteOrder(@Req() req: Request) {
         const orderID = Number(req.query.orderID);
         await this.orderService.deleteOrder(orderID);
@@ -54,6 +57,7 @@ export class OrderController {
 
     // Lấy List Order theo status 
     @Get('orders')
+    @Roles('ADMIN')
     async getListOrders(@Req() req: Request) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -71,6 +75,7 @@ export class OrderController {
 
     // Lấy chi tiết đơn hàng 
     @Get('orders-item')
+    @Roles('ADMIN')
     async getOrderDetail(@Req() req: Request) {
         const orderID = parseInt(req.query.orderID as string, 10);
         const products = await this.orderService.getOrderItem(orderID);
@@ -85,7 +90,8 @@ export class OrderController {
     }
 
     // Cập nhật trạng thái đơn hàng 
-    @Patch('order-to-shipping')     
+    @Patch('order-to-shipping')
+    @Roles('ADMIN')
     async updateOrderStatus(@Req() req: Request, @Body() body: any) {
         const orderID = Number(req.query.orderID);
         const { trackingCode, expectedDate } = body;
@@ -126,6 +132,49 @@ export class OrderController {
             message: 'Lấy danh sách đơn hàng của người dùng thành công',
             data: {
                 orders
+            }
+        };
+    }
+
+    // ===================== Count Order =====================
+    @Get('count')
+    @Roles('ADMIN')
+    async countOrders(@Req() req: Request) {
+        const {count, countPending, countShipping, countCompleted} = await this.orderService.countOrders();
+        return {
+            success: true,
+            message: 'Đếm đơn hàng thành công',
+            data: {
+                count, countPending, countShipping, countCompleted
+            }
+        };
+    }
+
+    // ===================== Thống kê doanh thu tháng này =====================
+    @Get('revenue-this-month')
+    @Roles('ADMIN')
+    async revenueThisMonth(@Req() req: Request) {
+        const {currentMonthRevenue, growth} = await this.orderService.getRevenueThisMonth();
+        return {
+            success: true,
+            message: 'Thống kê doanh thu tháng này thành công',
+            data: {
+                revenue: +currentMonthRevenue,
+                growth
+            }
+        };
+    }
+
+    // ===================== Thống kê doanh thu năm nay =====================
+    @Get('revenue-by-month')
+    @Roles('ADMIN')
+    async revenueThisYear(@Req() req: Request) {
+        const revenueData = await this.orderService.getRevenueByMonth();
+        return {
+            success: true,
+            message: 'Thống kê doanh thu năm nay thành công',
+            data: {
+                revenueData
             }
         };
     }
