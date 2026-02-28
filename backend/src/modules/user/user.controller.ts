@@ -3,6 +3,7 @@ import { UserService } from "./user.service";
 import { Request } from "express";
 import { Roles } from "src/auth/decorater/roles";
 import { CreateUserDTO, ChangePasswordDTO } from './dto';
+import { Throttle, SkipThrottle} from '@nestjs/throttler';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -45,6 +46,7 @@ export class UserController {
 
     // CHANGE PASSWORD 
     @Patch('change-password')
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     async changePassword(@Req() req: Request, @Body() body:ChangePasswordDTO) {
         const email = (req.user as any)?.email;
         const { oldPassword, newPassword } = body;
@@ -70,6 +72,7 @@ export class UserController {
 
     // Count Users 
     @Get('count')
+    @SkipThrottle()
     @Roles('ADMIN')
     async countUsers() {
         const totalUsers = await this.userService.countUsers();
@@ -82,6 +85,7 @@ export class UserController {
 
     // ==================== Count New Users This Month ====================
     @Get('count-this-month')
+    @SkipThrottle()
     @Roles('ADMIN')
     async countThisMonthUsers() {
         const totalThisMonthUsers = await this.userService.countThisMonthUsers();

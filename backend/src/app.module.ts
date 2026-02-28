@@ -12,6 +12,7 @@ import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { ProductModule } from './modules/product/product.module';
 import { VnpayModule } from './modules/vnpay/vnpay.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +21,10 @@ import { VnpayModule } from './modules/vnpay/vnpay.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'), 
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 30,
+    }]),
     DatabaseModule, 
     AuthModule,
     ProductModule,
@@ -33,6 +38,10 @@ import { VnpayModule } from './modules/vnpay/vnpay.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     }
   ]
 })

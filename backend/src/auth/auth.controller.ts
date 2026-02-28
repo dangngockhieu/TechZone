@@ -7,6 +7,7 @@ import { Public } from './decorater/customize';
 import { UnauthorizedException } from '../help/exception';
 import { UserAccount } from './interface';
 import { LocalAuthGuard } from './local';
+import { Throttle} from '@nestjs/throttler';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService,
@@ -14,6 +15,7 @@ export class AuthController {
 
     // REGISTER 
     @Post('register')
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
     async register(@Body() body: RegisterDTO) {
       const { email, name, password } = body;
@@ -27,6 +29,7 @@ export class AuthController {
 
     // LOGIN 
     @Post('login')
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     @Public()
     @UseGuards(LocalAuthGuard)
     async login(@Body() _body: LoginDTO, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -181,6 +184,7 @@ export class AuthController {
 
     // RESEND VERIFY EMAIL 
     @Post('resend')
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
     async resend(@Body('email') email: string) {
       await this.authService.resendVerificationEmail(email);
@@ -193,6 +197,7 @@ export class AuthController {
 
     // SEND RESET PASSWORD 
     @Post('send-reset-password')
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
     async sendResetPassword(@Body('email') email: string) {
       await this.authService.sendPasswordResetEmail(email);
@@ -205,6 +210,7 @@ export class AuthController {
 
     // RESET PASSWORD 
     @Patch('reset-password')
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
     async resetPassword(@Body() body: ResetPasswordDTO) {
       const { email, code, newPassword } = body;

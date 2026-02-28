@@ -1,6 +1,6 @@
 import { 
   Body, Controller, Delete, Get, Param, Post, Put, Query, 
-  Req, Res, UploadedFile, UploadedFiles, UseInterceptors,  
+  Req, UploadedFile, UploadedFiles, UseInterceptors,  
   BadRequestException
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -12,6 +12,7 @@ import { ProductFilters} from './interface';
 import { Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import { SkipThrottle} from '@nestjs/throttler';
 
 // Cấu hình Multer lưu ảnh
 const multerConfig = {
@@ -120,6 +121,7 @@ export class ProductController {
 
   // Lấy sản phẩm bán chạy nhất
   @Get('top-selling-product')
+  @SkipThrottle()
   @Roles('ADMIN')
   async getTopSellingProduct() {
     const data = await this.productService.getTopSellingProduct();
@@ -294,6 +296,7 @@ export class ProductController {
 
   // Tính tổng số sản phẩm trong kho
   @Get('count')
+  @SkipThrottle()
   @Roles('ADMIN')
   async countProducts() {
     const count = await this.productService.countProducts();

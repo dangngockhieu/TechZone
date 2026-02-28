@@ -3,6 +3,7 @@ import { OrderService } from "./order.service";
 import { CreateOrderDTO, OrderDTO } from "./interface";
 import { Request } from 'express';
 import { Roles } from "src/auth/decorater/roles";
+import { Throttle, SkipThrottle} from '@nestjs/throttler';
 
 @Controller('order')
 export class OrderController {
@@ -12,6 +13,7 @@ export class OrderController {
 
     // Tạo đơn hàng 
     @Post('order')
+    @Throttle({ default: { limit: 20, ttl: 60000 } })
     async createOrder(@Req() req: Request, @Body() body: CreateOrderDTO) {
         const { recipientName, address, phone, items, totalPrice, paymentMethod } = body;
         const userID = (req as any).user?.id; 
@@ -91,6 +93,7 @@ export class OrderController {
 
     // Cập nhật trạng thái đơn hàng 
     @Patch('order-to-shipping')
+    @SkipThrottle()
     @Roles('ADMIN')
     async updateOrderStatus(@Req() req: Request, @Body() body: any) {
         const orderID = Number(req.query.orderID);
@@ -138,6 +141,7 @@ export class OrderController {
 
     // ===================== Count Order =====================
     @Get('count')
+    @SkipThrottle()
     @Roles('ADMIN')
     async countOrders(@Req() req: Request) {
         const {count, countPending, countShipping, countCompleted} = await this.orderService.countOrders();
@@ -152,6 +156,7 @@ export class OrderController {
 
     // ===================== Thống kê doanh thu tháng này =====================
     @Get('revenue-this-month')
+    @SkipThrottle()
     @Roles('ADMIN')
     async revenueThisMonth(@Req() req: Request) {
         const {currentMonthRevenue, growth} = await this.orderService.getRevenueThisMonth();
@@ -167,6 +172,7 @@ export class OrderController {
 
     // ===================== Thống kê doanh thu năm nay =====================
     @Get('revenue-by-month')
+    @SkipThrottle()
     @Roles('ADMIN')
     async revenueThisYear(@Req() req: Request) {
         const revenueData = await this.orderService.getRevenueByMonth();

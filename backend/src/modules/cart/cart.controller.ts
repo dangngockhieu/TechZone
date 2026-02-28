@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Patch, Post, Req, Query } from "@nestjs/common";
 import { Request } from "express";
 import { CartService } from "./cart.service";
+import { Throttle} from '@nestjs/throttler';
 @Controller('cart')
 export class CartController {
     constructor(
@@ -21,6 +22,7 @@ export class CartController {
 
     // Number Cart 
     @Get('number-cart')
+    @Throttle({ default: { limit: 50, ttl: 60000 } })
     async numberCart(@Req() req : Request) {
         const userID = Number((req.user as any)?.id);
         const totalCart = await this.cartService.numberCart(userID);
@@ -35,6 +37,7 @@ export class CartController {
 
     // Get Cart 
     @Get('cart')
+    @Throttle({ default: { limit: 50, ttl: 60000 } })
     async getCart(@Req() req : Request) {
         const userID = Number((req.user as any)?.id);
         const cartItems = await this.cartService.getCart(userID);
@@ -50,6 +53,7 @@ export class CartController {
 
     // Update quantity Product from Cart 
     @Patch('cart')
+    @Throttle({ default: { limit: 50, ttl: 60000 } })
     async updateQuantityCart(@Req() req : Request, @Query() query: any) {
         const userID = Number((req.user as any)?.id);
         const productID = Number(query.productID);
@@ -63,6 +67,7 @@ export class CartController {
 
     // Remove Cart
     @Delete('cart')
+    @Throttle({ default: { limit: 50, ttl: 60000 } })
     async removeCart(@Req() req : Request, @Query() query: any) {
         const userID = Number((req.user as any)?.id);
         const productID = Number(query.productID);
