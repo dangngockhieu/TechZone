@@ -1,0 +1,23 @@
+export interface ProductView{
+  id: number,
+  name: string,
+  originalPrice: number,
+  price: number,
+  coupon: number,
+  quantity: number,
+  sold: number,
+  warranty: string,
+  infor: string,
+  cpu: string,
+  ram: string,
+  storage: string,
+  screen: string,
+  graphicsCard: string,
+  battery: string,
+  weight: string,
+  releaseYear: string,
+  category: string,
+  factory: string,
+  images: string[],
+  features: string[]
+} 
