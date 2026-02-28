@@ -7,7 +7,7 @@ import { BsCart4 } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { removeItem } from "../../../redux/slices/cartSlice";
 import type { Item } from "../../../interfaces";
-import { createOrder, deleteCartItem } from '../../../services/apiServices';
+import { createOrder, deleteCartItem, createVNPayment } from '../../../services/apiServices';
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const Checkout = () => {
     const location = useLocation();
@@ -69,6 +69,7 @@ const Checkout = () => {
       return navigate('/cart');
     }
 
+    const orderID = response.data.data.orderID;
 
     // COD thì giữ nguyên
     if (paymentMethod === "COD") {
@@ -82,6 +83,20 @@ const Checkout = () => {
 
     // BANK → VNPay
     if (paymentMethod === "BANK") {
+      const res = await createVNPayment(orderID);
+
+      if (!res?.data?.success ) {
+        toast.error("Tạo thanh toán VNPay thất bại.");
+        return;
+      }
+
+      // Clear cart
+      for (const item of items) {
+        const res = await deleteCartItem(item.id);
+        if (res?.data?.success) dispatch(removeItem(String(item.id)));
+      }
+
+      window.location.href = res?.data?.paymentUrl;
       return;
     }
 

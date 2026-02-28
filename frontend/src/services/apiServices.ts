@@ -243,3 +243,9 @@ export const deleteOrder = (orderID: number) => {
   const URL_BACKEND = `/order/order?orderID=${orderID}`;
   return axios.delete(URL_BACKEND);
 }
+
+// ==================== VNPay API ====================
+export const createVNPayment = async (orderID: number) => {
+  const URL_BACKEND = `/vnpay/create`;
+  return axios.post(URL_BACKEND, { orderID });
+};

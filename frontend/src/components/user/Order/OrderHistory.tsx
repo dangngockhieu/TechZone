@@ -5,7 +5,7 @@ import { useAppDispatch } from "../../../redux/hooks";
 import { setCartCount } from "../../../redux/slices/cartSlice";
 import './OrderHistory.scss';
 import img from '../../../assets/order.png';
-import { getMyOrders, updateOrderForUser, buyAgain, getNumberCart, createReview } from '../../../services/apiServices.js';
+import { getMyOrders, updateOrderForUser, buyAgain, getNumberCart, createReview, createVNPayment } from '../../../services/apiServices.js';
 import ConfirmReceive from './ConfirmRecieve.js';
 import type{HistoryOrder, ProductInOrder} from '../../../interfaces';
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -63,6 +63,20 @@ const OrderHistory = () => {
     const handleOpenConfirm = (item: HistoryOrder) => {
         setConfirmOrder(item);
         setIsOpenConfirm(true);
+    };
+
+    const handlePayment = async (orderID: number) => {
+        try {
+            const res = await createVNPayment(orderID);
+            if (res?.data?.success && res?.data?.paymentUrl) {
+                window.location.href = res?.data?.paymentUrl;
+            } else {
+                toast.error(res?.data?.message || 'Không thể tạo link thanh toán');
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error('Lỗi kết nối server');
+        }
     };
 
     const tabs = [
@@ -193,6 +207,9 @@ const OrderHistory = () => {
                                                 Tổng tiền: <span>{formatCurrency(item.totalPrice)}</span>
                                             </div>
                                             <div className="action-buttons">
+                                                {item.status === 'PENDING' && item.paymentMethod === 'BANK' && item.paymentStatus === 'UNPAID' && (
+                                                    <button className="btn btn-payment" onClick={() => handlePayment(item.orderID)}>Thanh toán</button>
+                                                )}
                                                 {item.status === 'COMPLETED' && (
                                                     <button className="btn btn-buy-again" onClick={() => handleBuyAgain(item.products)}>Mua Lại</button>
                                                 )}

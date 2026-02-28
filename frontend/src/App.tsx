@@ -19,6 +19,7 @@ import AdminLayout from './components/admin/AdminLayout.js';
 import ManagerUser from './components/admin/ManageUser/ManagerUser.js';
 import ManageOrder from './components/admin/ManageOrder/ManageOrder.js';
 import ManageProduct from './components/admin/ManageProduct/ManageProduct.js';
+import PaymentSuccess from './components/user/Order/PaymentSuccess.js';
 const App = () => {
   return (
       <Routes>
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
           <Route path="checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
           <Route path="orders" element={<PrivateRoute><OrderHistory /></PrivateRoute>} />
+          <Route path="payment-success" element={<PrivateRoute><PaymentSuccess /></PrivateRoute>} />
           <Route path="warranty" element={<Warranty />} />
           <Route path="privacy" element={<Privacy />} />
         </Route>
