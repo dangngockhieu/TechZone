@@ -6,7 +6,7 @@ import { Pool } from "pg";
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
-
+import { Cron } from '@nestjs/schedule';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -514,6 +514,70 @@ export class OrderService {
         } catch (error) {
             await client.query('ROLLBACK');
             console.error('Lỗi buyAgain:', error);
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
+    // Tự động xóa đơn hàng thanh toán online nhưng không hoàn thành sau 7 ngày
+    @Cron('0 0 * * 1', { timeZone: 'Asia/Ho_Chi_Minh' }) // Chạy vào lúc 00:00 mỗi Thứ Hai hàng tuần
+    async deleteUnpaidOrders(): Promise<void> {
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const thresholdDate = dayjs(vnNow).subtract(7, 'day').toDate();
+        const queryOrder = `
+            SELECT o.id AS "orderID"
+            FROM "orders" o
+            JOIN "payments" p ON o.id = p."orderID"
+            WHERE p.method <> 'COD'
+            AND p.status = 'UNPAID'
+            AND o."orderDate" < $1
+        `;
+        const result = await this.pool.query(queryOrder, [thresholdDate]);
+        const orderIDs = result.rows.map(r => r.orderID);
+        // Xoá OrderItem và Cộng lại số lượng vào kho
+         const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
+            for (const orderID of orderIDs) {
+                const queryItems = `
+                    SELECT "productID", quantity
+                    FROM "order_items"
+                    WHERE "orderID" = $1
+                `;
+                const itemsRes = await client.query(queryItems, [orderID]);
+                const items = itemsRes.rows;
+                for (const item of items) {
+                    const queryUpdateStock = `
+                        UPDATE "products"
+                        SET quantity = quantity + $1, sold = sold - $1
+                        WHERE id = $2
+                    `;
+                    await client.query(queryUpdateStock, [item.quantity, item.productID]);
+                }
+
+                const queryDeleteItems = `
+                    DELETE FROM "order_items"
+                    WHERE "orderID" = $1
+                `;
+                await client.query(queryDeleteItems, [orderID]);
+
+                const queryPayment = `
+                    DELETE FROM "payments"
+                    WHERE "orderID" = $1
+                `;
+                await client.query(queryPayment, [orderID]);
+
+                const queryOrder = `
+                    DELETE FROM "orders"
+                    WHERE id = $1
+                `;
+                await client.query(queryOrder, [orderID]);
+
+            }
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
             throw error;
         } finally {
             client.release();

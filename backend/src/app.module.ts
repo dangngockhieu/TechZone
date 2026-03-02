@@ -13,6 +13,7 @@ import { OrderModule } from './modules/order/order.module';
 import { ProductModule } from './modules/product/product.module';
 import { VnpayModule } from './modules/vnpay/vnpay.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,6 +26,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
       ttl: 60000,
       limit: 30,
     }]),
+    ScheduleModule.forRoot(),
     DatabaseModule, 
     AuthModule,
     ProductModule,

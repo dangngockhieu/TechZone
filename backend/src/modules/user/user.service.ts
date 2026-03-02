@@ -6,7 +6,7 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
 import { UserFindEmail, UserPaginate } from './interface';
-
+import { Cron } from '@nestjs/schedule';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -133,5 +133,18 @@ export class UserService {
         `;
         const result = await this.pool.query(query, [startOfMonth, endOfMonth]);
         return parseInt(result.rows[0].total, 10);
+    }
+
+    // Xóa user tự động sau 7 ngày không xác thực email
+    @Cron('0 0 * * 1', { timeZone: 'Asia/Ho_Chi_Minh' }) // Chạy vào lúc 00:00 mỗi Thứ Hai hàng tuần
+    async deleteUnverifiedUsers(): Promise<void> {
+        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const thresholdDate = dayjs(vnNow).subtract(7, 'day').toDate();
+        const query = `
+            DELETE FROM "users"
+            WHERE "isVerified" = false
+            AND "sent_at" < $1
+        `;
+        await this.pool.query(query, [thresholdDate]);
     }
 }
