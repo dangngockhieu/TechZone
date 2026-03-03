@@ -86,6 +86,11 @@ const handleBuyNow = async (productID: number) => {
     return <div>Đang tải thông tin sản phẩm...</div>;
   }
 
+  const resolveImageUrl = (url?: string) => {
+    if (!url) return '';
+    return url.startsWith('/') ? `${BASE_URL}${url}` : `${BASE_URL}/${url}`;
+  };
+
   const hasDiscount = product?.coupon > 0;
   const newPrice = product?.price?.toLocaleString("vi-VN") + "đ";
   const oldPrice = product?.originalPrice?.toLocaleString("vi-VN") + "đ";
@@ -103,16 +108,16 @@ const handleBuyNow = async (productID: number) => {
         <div className="left-column">
           <div className="product-images">
             <img
-              src={product.imageUrls[indexImage].startsWith("/") ? `${BASE_URL}${product.imageUrls[indexImage]}` : `${BASE_URL}/${product.imageUrls[indexImage]}`}
+              src={resolveImageUrl(product.imageUrls?.[indexImage])}
               alt={product.name}
               className="main-img"
             />
             <div className="thumbs">
-              {product.imageUrls.map((url, idx) => (
+              {product.imageUrls?.map((url, idx) => (
                 <img
                   key={idx}
                   onClick={() => setIndexImage(idx)}
-                  src={url.startsWith("/") ? `${BASE_URL}${url}` : `${BASE_URL}/${url}`}
+                  src={resolveImageUrl(url)}
                   alt=""
                 />
               ))}
