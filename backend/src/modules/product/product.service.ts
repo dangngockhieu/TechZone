@@ -94,8 +94,8 @@ export class ProductService {
                 ROUND(AVG(r.rating), 2) AS "avgRating",
                 COUNT(r.id) AS "totalReviews",
             (
-                SELECT JSON_ARRAYAGG(pi.url)
-                FROM product_images pi 
+                SELECT json_agg(pi.url)
+                FROM "product_images" pi 
                 WHERE pi."productID" = p.id 
             ) AS "imageUrls"
             FROM products p
@@ -119,8 +119,8 @@ export class ProductService {
                 ROUND(AVG(r.rating), 2) AS "avgRating",
                 COUNT(r.id) AS "totalReviews",
             (
-                SELECT JSON_ARRAYAGG(pi.url)
-                FROM product_images pi 
+                SELECT json_agg(pi.url)
+                FROM "product_images" pi 
                 WHERE pi."productID" = p.id 
             ) AS "imageUrls"
             FROM products p
