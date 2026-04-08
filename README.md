@@ -18,6 +18,7 @@ Dự án bao gồm:
 - 🗄️ **Database**: PostgreSQL
 
 ---
+
 ## 🔄 Migration from Node.js Version
 
 Originally built with Node.js (Express):
@@ -51,6 +52,20 @@ This project was developed in two main phases to experiment with and optimize th
 | **Auth**     | JWT, Cookies, Email Verification    | Hệ thống xác thực                |
 | **Mailer**   | Nodemailer + Gmail App Password     | Gửi mail xác thực/reset password |
 | **Database** | PostgreSQL                          | Lưu trữ dữ liệu                  |
+
+---
+
+### 🎨 Figma Design
+
+🔗 [View Figma Design](https://www.figma.com/design/TrdxY3Fw1Iz9EdEhLgBJvc/Untitled?node-id=0-1&p=f&t=2A3bGnTvSRHaNvSl-0)
+
+---
+
+## 🗄️ Database Design
+
+![ERD](docs/RelationalSchema.png)
+
+This diagram shows the main entities and relationships of the TechZone backend.
 
 ---
 
