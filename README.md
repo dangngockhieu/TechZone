@@ -2,8 +2,6 @@
 
 Trang web mua sắm laptop trực tuyến | Fullstack với **React + Nestjs + Prisma**
 
----
-
 ## 📘 Tổng quan
 
 **TechZone** là một nền tảng thương mại điện tử mini, cho phép người dùng:
@@ -18,6 +16,29 @@ Dự án bao gồm:
 - 🧠 **Backend**: REST API với NestJS, Prisma, JWT, Argon2
 - 💻 **Frontend**: React + Vite + React-Bootstrap + Axios
 - 🗄️ **Database**: PostgreSQL
+
+---
+## 🔄 Migration from Node.js Version
+
+Originally built with Node.js (Express):
+https://github.com/dangngockhieu/Do_an1.git
+
+This version was re-implemented using Spring Boot to achieve:
+
+- Strong type safety
+- Better structured architecture
+- Improved scalability for larger systems
+
+---
+
+## 🚀 Development Journey & Migration
+
+This project was developed in two main phases to experiment with and optimize the backend architecture:
+
+- **Phase 1 (10/2025 – 12/2025):** Built the complete MVP (Minimum Viable Product) using **Node.js Express**. The focus was on rapid development and delivering core e-commerce functionalities.
+- **Phase 2 (02/2026 – 03/2026):** Successfully migrated the entire backend system to **Nestjs**.
+  - **Why Migrate?** Purpose: Adopt strict OOP principles, improve scalability, and utilize a structured architecture for better transaction handling and security.
+  - **Outcome** Re-architected the system using a layered approach, resulting in improved maintainability and enhanced query performance with PostgreSQL.
 
 ---
 
