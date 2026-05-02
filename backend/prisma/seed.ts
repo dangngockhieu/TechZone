@@ -20,7 +20,7 @@ export class DatabaseSeeder {
       if (userCount === 0) {
         console.log('👤 Tạo người dùng mẫu...');
         const passwordHash = await argon.hash('123456');
-        
+
         const usersToInsert = [
           ['Admin', 'admin@gmail.com', passwordHash, 'ADMIN', true],
           ['User', 'user@gmail.com', passwordHash, 'USER', true],
@@ -46,8 +46,8 @@ export class DatabaseSeeder {
       if (featureCount === 0) {
         console.log(' Tạo các tính năng...');
         const featuresToInsert = [
-          'Văn phòng', 'Gaming', 'Mỏng nhẹ', 'Đồ họa', 'Cảm ứng', 
-          'Laptop AI', 'Điện thoại 5G', 'Điện thoại AI', 'Gaming Phone', 
+          'Văn phòng', 'Gaming', 'Mỏng nhẹ', 'Đồ họa', 'Cảm ứng',
+          'Laptop AI', 'Điện thoại 5G', 'Điện thoại AI', 'Gaming Phone',
           'Phổ thông 4G', 'Điện thoại gập'
         ];
 
@@ -84,7 +84,7 @@ export class DatabaseSeeder {
 
         const insertProductQuery = `
           INSERT INTO "products" (
-            name, "originalPrice", price, coupon, quantity, warranty, infor, 
+            name, "originalPrice", price, coupon, quantity, warranty, infor,
             cpu, ram, storage, screen, "graphicsCard", battery, weight, "releaseYear", category, factory
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         `;
@@ -138,7 +138,7 @@ export class DatabaseSeeder {
 
       if (orderCount === 0) {
         console.log('🛒 Tạo đơn hàng và đánh giá...');
-        
+
         for (const product of products) {
           // Shuffle và lấy 3 users
           const reviewers = [...users].sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -152,7 +152,7 @@ export class DatabaseSeeder {
               `INSERT INTO "orders" ("userID", "totalPrice", "recipientName", address, phone, status, "orderDate", "trackingCode", "deliveryDate", "receivedDate") 
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
               [
-                user.id, totalPrice, user.name, "123 Đường ABC, TP.HCM", "0901234567", 
+                user.id, totalPrice, user.name, "123 Đường ABC, TP.HCM", "0901234567",
                 "COMPLETED", nowVN, `TRACK-${product.id}-${user.id}`, nowVN, nowVN
               ]
             );

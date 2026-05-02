@@ -6,12 +6,37 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPING
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentMethod {
+  COD
+  VNPAY
+  PAYOS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELED
+}
+
 model User {
   id                Int           @id @default(autoincrement())
   name              String        @db.VarChar(100)
   email             String        @unique @db.VarChar(100)
   password          String        @db.VarChar(255)
-  role              String        @db.VarChar(100)
+  role              Role          @default(USER)
   isVerified        Boolean       @default(false)
   refresh_token     String?       @db.VarChar(255)
   sent_at           DateTime?
@@ -51,15 +76,15 @@ model Cart {
 }
 
 model Order {
-  id            Int       @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   userID        Int
   totalPrice    Int
-  recipientName String    @db.VarChar(100)
-  address       String    @db.VarChar(255)
-  phone         String    @db.VarChar(20)
-  status        String    @db.VarChar(20) // PENDING, SHIPPING, COMPLETED, CANCELED
+  recipientName String      @db.VarChar(100)
+  address       String      @db.VarChar(255)
+  phone         String      @db.VarChar(20)
+  status        OrderStatus @default(PENDING)
   orderDate     DateTime
-  trackingCode  String?   @db.VarChar(100)
+  trackingCode  String?     @db.VarChar(100)
   deliveryDate  DateTime?
   expectedDate  DateTime?
   receivedDate  DateTime?
@@ -72,13 +97,15 @@ model Order {
 }
 
 model Payment {
-  id            Int      @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   orderID       Int
   amount        Int
-  method        String   @db.VarChar(50) // COD, VNPay, Momo...
-  status        String   @db.VarChar(50) // UNPAID, PAID
-  transactionID String?  @db.VarChar(100) // mã giao dịch từ cổng thanh toán
-  createdAt     DateTime @default(now())
+  method        PaymentMethod @default(COD)
+  status        PaymentStatus @default(PENDING)
+  transactionID String?       @db.VarChar(100) // mã giao dịch từ cổng thanh toán
+  providerData  Json? // Lưu raw payload từ webhook của VNPay/PayOS
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt // Tự động cập nhật thời gian đổi trạng thái
 
   order Order @relation(fields: [orderID], references: [id])
 
