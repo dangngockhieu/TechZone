@@ -3,24 +3,31 @@ import { Pool } from 'pg';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { v4 as uuid4 } from 'uuid';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../help/mail/mail.service';
 import { UserService } from '../modules/user/user.service';
 import { BadRequestException, NotFoundException, ConflictException, UnauthorizedException } from '../help/exception';
 import { UserAccount } from './interface';
+import { Role } from '../enums';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const TZ = 'Asia/Ho_Chi_Minh';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject('DATABASE_POOL') private pool: Pool, 
-        private jwt: JwtService, 
+        @Inject('DATABASE_POOL') private pool: Pool,
+        private jwt: JwtService,
         private config: ConfigService,
         private mail: MailService,
-        private readonly userService: UserService           
+        private readonly userService: UserService
     ) {}
 
-    // GỬI EMAIL XÁC THỰC 
+    // GỬI EMAIL XÁC THỰC
     private async sendVerificationEmail(email: string, name: string, token: string): Promise<void> {
         const baseUrl = this.config.get<string>('VERIFY_BASE_URL');
         const separator = baseUrl.includes('?') ? '&' : '?';
@@ -28,7 +35,7 @@ export class AuthService {
         await this.mail.sendVerificationEmail(email, name, verifyUrl);
     }
 
-    // GỬI LẠI EMAIL XÁC THỰC 
+    // GỬI LẠI EMAIL XÁC THỰC
     async resendVerificationEmail(email: string) : Promise<void>{
         if (!email) throw new BadRequestException('Email is required');
         const user = await this.userService.findUserByEmail(email)
@@ -36,9 +43,9 @@ export class AuthService {
         if (user.isVerified) throw new BadRequestException('Email already verified');
 
         const lastSent = user.sent_at;
-        const now = dayjs();
+        const now = dayjs().tz(TZ);
         if (lastSent) {
-            const diffMinutes = now.diff(dayjs(lastSent), 'minutes');
+            const diffMinutes = now.diff(dayjs(lastSent).tz(TZ), 'minutes');
             const waitMinutes = 5;
             const remaining = waitMinutes - diffMinutes;
             if (remaining > 0) {
@@ -51,22 +58,22 @@ export class AuthService {
         await this.updateVerificationState(user.email, user.name);
     }
 
-    // CẬP NHẬT TRẠNG THÁI XÁC THỰC 
+    // CẬP NHẬT TRẠNG THÁI XÁC THỰC
     private async updateVerificationState(email: string, name: string) : Promise<void>{
         const token = uuid4();
         const refreshExpired = dayjs().add(30, 'minutes').toDate();
         const sentAt = dayjs().toDate();
 
         const query = `
-            UPDATE "users" 
-            SET verification_code = $1, sent_at = $2, code_expired = $3 
+            UPDATE "users"
+            SET verification_code = $1, sent_at = $2, code_expired = $3
             WHERE email = $4`;
         await this.pool.query(query, [token, sentAt, refreshExpired, email]);
-        
+
         await this.sendVerificationEmail(email, name, token);
     }
-    
-    // GỬI EMAIL QUÊN MẬT KHẨU 
+
+    // GỬI EMAIL QUÊN MẬT KHẨU
     async sendPasswordResetEmail(email: string) : Promise<void> {
         if (!email) throw new BadRequestException('Email is required');
         const user = await this.userService.findUserByEmail(email);
@@ -75,9 +82,9 @@ export class AuthService {
             throw new BadRequestException('Account not verified');
 
         const lastSent = user.sent_at;
-        const now = dayjs();
+        const now = dayjs().tz(TZ);
         if (lastSent) {
-            const diffMinutes = now.diff(dayjs(lastSent), 'minutes');
+            const diffMinutes = now.diff(dayjs(lastSent).tz(TZ), 'minutes');
             if (diffMinutes < 5) {
                 throw new BadRequestException(
                     `Bạn chỉ được yêu cầu gửi lại mã xác thực sau ${5 - diffMinutes} phút nữa.`,
@@ -89,16 +96,16 @@ export class AuthService {
         try {
             await this.mail.sendPasswordResetEmail(email, user.name, codeID);
             const query = `
-                UPDATE "users" 
+                UPDATE "users"
                 SET verification_code = $1, sent_at = $2
                 WHERE email = $3`;
-            await this.pool.query(query, [codeID, dayjs().toDate(), email]);
+            await this.pool.query(query, [codeID, dayjs().tz(TZ).toDate(), email]);
         } catch {
             throw new BadRequestException('Failed to send password reset email');
         }
     }
 
-    // TẠO TOKEN 
+    // TẠO TOKEN
     private async generateToken(user: UserAccount): Promise<{ access_token: string; refresh_token: string }> {
         const payload = { sub: user.id, email: user.email, name: user.name, role: user.role };
 
@@ -115,21 +122,21 @@ export class AuthService {
         return { access_token, refresh_token };
     }
 
-    // ĐĂNG KÝ 
+    // ĐĂNG KÝ
     async register(email: string, password: string, name: string ) : Promise<void>{
         // Kiểm tra email đã tồn tại chưa
         const existingUser = await this.userService.isEmailExist(email);
         if (existingUser) throw new ConflictException('Email đã được đăng ký!');
 
         const token = uuid4();
-        const code_expired = dayjs().add(30, 'minutes').toDate();
-        const sentAt = dayjs().toDate();
+        const code_expired = dayjs().tz(TZ).add(30, 'minutes').toDate();
+        const sentAt = dayjs().tz(TZ).toDate();
         const hashPassword = await argon.hash(password);
 
         // Insert vào Database
         const query = `
             INSERT INTO "users" (email, password, name, role, "isVerified", verification_code, code_expired, sent_at)
-            VALUES ($1, $2, $3, 'USER', false, $4, $5, $6);
+            VALUES ($1, $2, $3, '${Role.USER}', false, $4, $5, $6);
         `;
 
         await this.pool.query(query, [email, hashPassword, name, token, code_expired, sentAt]);
@@ -143,22 +150,22 @@ export class AuthService {
         }
     }
 
-    // XÁC THỰC USER 
+    // XÁC THỰC USER
     async validateUser(email: string, password: string) : Promise<UserAccount> {
         const user = await this.userService.findUserByEmail(email);
-        if (!user || !user.password || !user.isVerified) 
+        if (!user || !user.password || !user.isVerified)
             throw new BadRequestException('Tài khoản không tồn tại hoặc chưa được xác thực');
         const ok = await argon.verify(user.password, password);
         if (!ok) throw new BadRequestException('Sai mật khẩu');
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        return { id: user.id, email: user.email, name: user.name, role: user.role as Role };
     }
 
-    // ĐĂNG NHẬP 
+    // ĐĂNG NHẬP
     async login(user: UserAccount) : Promise<{ access_token: string; refresh_token: string; user: UserAccount }> {
         const { access_token, refresh_token } = await this.generateToken(user);
         const hashed = await argon.hash(refresh_token);
         const query = `
-            UPDATE "users" 
+            UPDATE "users"
             SET refresh_token = $1
             WHERE id = $2`;
         await this.pool.query(query, [hashed, user.id]);
@@ -174,19 +181,19 @@ export class AuthService {
         };
     }
 
-    // LOGOUT 
+    // LOGOUT
     async logout(email: string) : Promise<void> {
         const user = await this.userService.findUserByEmail(email);
         if (!user) throw new NotFoundException('User not found');
-    
+
         const query = `
-            UPDATE "users" 
+            UPDATE "users"
             SET refresh_token = $1
             WHERE id = $2`;
         await this.pool.query(query, [null, user.id]);
     }
 
-    // REFRESH TOKEN 
+    // REFRESH TOKEN
     async postrefresh_token(refresh_token: string) : Promise<{ access_token: string; user: UserAccount }> {
         let payload: any;
         try {
@@ -198,7 +205,7 @@ export class AuthService {
         }
 
         const user = await this.userService.findUserByEmail(payload.email);
-    
+
         if (!user || !user.refresh_token)
             throw new UnauthorizedException('User not found or refresh token revoked');
 
@@ -215,13 +222,13 @@ export class AuthService {
             user: {
                 id: user.id,
                 name: user.name,
-                role: user.role,
+                role: user.role as Role,
                 email: user.email,
             },
         };
     }
 
-    // XÁC THỰC EMAIL 
+    // XÁC THỰC EMAIL
     async verifyByToken(token: string, email: string) : Promise<void> {
         if (!token) throw new BadRequestException('Token missing');
 
@@ -234,19 +241,19 @@ export class AuthService {
 
         if (user.code_expired && dayjs().isAfter(dayjs(user.code_expired))) {
             const deleteQuery = `
-                DELETE FROM "users" 
+                DELETE FROM "users"
                 WHERE email = $1`;
             await this.pool.query(deleteQuery, [email]);
             throw new BadRequestException('Verification expired. Please register again.');
         }
         const updateQuery = `
-                UPDATE "users" 
+                UPDATE "users"
                 SET "isVerified" = true, verification_code = NULL, code_expired = NULL, sent_at = NULL
                 WHERE email = $1`;
         await this.pool.query(updateQuery, [email]);
     }
 
-    // RESET MẬT KHẨU 
+    // RESET MẬT KHẨU
     async resetPassword(email: string, code: string, newPassword: string) : Promise<void> {
         const user = await this.userService.findUserByEmail(email)
         if (!user) throw new NotFoundException('User not found or invalid code');
@@ -255,7 +262,7 @@ export class AuthService {
         }
         const hashPassword = await argon.hash(newPassword);
         const updateQuery = `
-                UPDATE "users" 
+                UPDATE "users"
                 SET password = $1, verification_code = NULL, code_expired = NULL, sent_at = NULL
                 WHERE id = $2`;
         await this.pool.query(updateQuery, [hashPassword, user.id]);

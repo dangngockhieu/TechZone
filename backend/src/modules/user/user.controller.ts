@@ -1,16 +1,17 @@
 import { Controller, Get, Req, Post, Patch, Body} from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Request } from "express";
-import { Roles } from "src/auth/decorater/roles";
+import { Roles } from "../../auth/decorater/roles";
 import { CreateUserDTO, ChangePasswordDTO } from './dto';
 import { Throttle, SkipThrottle} from '@nestjs/throttler';
+import { Role } from "../../enums";
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    // Get User With Paginateion 
+    // Get User With Paginateion
     @Get('users-paginate')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async getUserWithPaginate( @Req() req: Request) {
         const { page, limit, search } = req.query;
         const pageNumber = Number(page) || 1;
@@ -34,7 +35,7 @@ export class UserController {
 
     // ADMIN CREATE USER
     @Post('user')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async createUserByAdmin(@Body() body: CreateUserDTO) {
         const { email, password, name, role } = body;
         await this.userService.postUserForAdmin(email, name, password, role);
@@ -44,7 +45,7 @@ export class UserController {
         };
     }
 
-    // CHANGE PASSWORD 
+    // CHANGE PASSWORD
     @Patch('change-password')
     @Throttle({ default: { limit: 3, ttl: 60000 } })
     async changePassword(@Req() req: Request, @Body() body:ChangePasswordDTO) {
@@ -57,9 +58,9 @@ export class UserController {
         };
     }
 
-    // CHANGE ROLE USER 
+    // CHANGE ROLE USER
     @Patch('user-role/:id')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async changeUserRole(@Req() req: Request) {
         const userID = +req.params.id;
         const newRole = req.body.role;
@@ -70,10 +71,10 @@ export class UserController {
         };
     }
 
-    // Count Users 
+    // Count Users
     @Get('count')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async countUsers() {
         const totalUsers = await this.userService.countUsers();
         return {
@@ -86,7 +87,7 @@ export class UserController {
     // ==================== Count New Users This Month ====================
     @Get('count-this-month')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async countThisMonthUsers() {
         const totalThisMonthUsers = await this.userService.countThisMonthUsers();
         return {

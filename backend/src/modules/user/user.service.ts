@@ -2,11 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ConflictException, BadRequestException, NotFoundException, UnauthorizedException } from '../../help/exception';
 import { Pool } from 'pg';
 import * as argon from 'argon2';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { UserFindEmail, UserPaginate } from './interface';
 import { Cron } from '@nestjs/schedule';
+import { Role } from '../../enums';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -16,27 +17,27 @@ export class UserService {
         @Inject('DATABASE_POOL') private pool: Pool
     ) {}
 
-    // Check email exists 
+    // Check email exists
     async isEmailExist(email: string): Promise<boolean> {
         const query = 'SELECT id FROM "users" WHERE email = $1';
         const existingUser = await this.pool.query(query, [email]);
-        
+
         if (existingUser.rows.length > 0) {
             return true;
         }
         return false;
     }
 
-    // Find user by email 
+    // Find user by email
     async findUserByEmail(email: string): Promise<UserFindEmail> {
-        const query = `SELECT id, name, email, password, role, "refresh_token", 
-        "verification_code", "sent_at", "code_expired", "isVerified" 
+        const query = `SELECT id, name, email, password, role, "refresh_token",
+        "verification_code", "sent_at", "code_expired", "isVerified"
         FROM "users" WHERE email = $1`;
         const result = await this.pool.query(query, [email]);
         return result.rows[0];
     }
 
-    // Get User With Paginateion 
+    // Get User With Paginateion
     async getUserWithPaginate(page: number, limit: number, search: string) : Promise<{users: UserPaginate[], total: number}> {
         const offset = (page - 1) * limit;
         let query1 = `
@@ -50,7 +51,7 @@ export class UserService {
             FROM users
             WHERE "isVerified" = true
         `;
-        
+
         const values1 = [];
         const values2 = [];
         let index = 1;
@@ -73,18 +74,18 @@ export class UserService {
     }
 
     // CREATE USER (ADMIN)
-    async postUserForAdmin (email: string, name: string, password: string, role: string): Promise<void> {
+    async postUserForAdmin (email: string, name: string, password: string, role: Role): Promise<void> {
         const existingUser = await this.isEmailExist(email);
         if (existingUser) throw new ConflictException('Email đã được đăng ký!');
         const hashPassword = await argon.hash(password);
         const query = `
             INSERT INTO "users" (email, password, name, role, "isVerified")
-            VALUES ($1, $2, $3, $4, true)
+            VALUES ($1, $2, $3, $4::"Role", true)
         `;
         await this.pool.query(query, [email, hashPassword, name, role]);
     };
 
-    // CHANGE PASSWORD 
+    // CHANGE PASSWORD
     async changePassword(email: string, oldPassword: string, newPassword: string) : Promise<void> {
         if (!email) {
             throw new UnauthorizedException('Không xác định được user. Thiếu token hoặc token không hợp lệ');
@@ -103,23 +104,23 @@ export class UserService {
     }
 
     // CHANGE ROLE USER
-    async changeUserRole(userID: number, newRole: string) : Promise<void> {
+    async changeUserRole(userID: number, newRole: Role) : Promise<void> {
         const query = `
             UPDATE "users"
-            SET role = $1
+            SET role = $1::"Role"
             WHERE id = $2
         `;
         await this.pool.query(query, [newRole, userID]);
     }
 
-    // Count Users 
+    // Count Users
     async countUsers(): Promise<number> {
         const query = 'SELECT COUNT(*) AS total FROM "users" WHERE "isVerified" = true';
         const result = await this.pool.query(query);
         return parseInt(result.rows[0].total, 10);
     }
 
-    // Count This Month Users 
+    // Count This Month Users
     async countThisMonthUsers(): Promise<number> {
         const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
         const startOfMonth = dayjs(vnNow).startOf('month').toDate();

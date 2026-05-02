@@ -13,7 +13,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService,
     private readonly config: ConfigService) {}
 
-    // REGISTER 
+    // REGISTER
     @Post('register')
     @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
@@ -27,7 +27,7 @@ export class AuthController {
       };
     }
 
-    // LOGIN 
+    // LOGIN
     @Post('login')
     @Throttle({ default: { limit: 5, ttl: 60000 } })
     @Public()
@@ -46,12 +46,12 @@ export class AuthController {
         });
       }
       res.cookie('refresh_token', data.refresh_token, {
-        httpOnly: true,      
+        httpOnly: true,
         secure: isProd,
         sameSite: isProd ? 'strict' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/',
-        domain: isProd ? '.techzone.vn' : undefined 
+        domain: isProd ? '.techzone.vn' : undefined
       });
 
       return {
@@ -64,7 +64,7 @@ export class AuthController {
       };
     }
 
-    // LOGOUT 
+    // LOGOUT
     @Post('logout')
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
       const email = (req.user as UserAccount)?.email;
@@ -79,7 +79,7 @@ export class AuthController {
           secure: isProd,
           sameSite: isProd ? 'none' : 'lax',
           path: '/',
-          domain: isProd ? '.techzone.vn' : undefined  
+          domain: isProd ? '.techzone.vn' : undefined
         });
       }
       return {
@@ -89,7 +89,7 @@ export class AuthController {
       }
     }
 
-    // REFRESH TOKEN 
+    // REFRESH TOKEN
     @Post('refresh-token')
     @Public()
     async refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -98,7 +98,7 @@ export class AuthController {
         throw new UnauthorizedException('Missing refresh token');
       }
       const data = await this.authService.postrefresh_token(refresh_token);
-      
+
       // Set lại refresh token vào cookie để đảm bảo cookie luôn fresh
       res.cookie('refresh_token', refresh_token, {
         httpOnly: true,
@@ -106,7 +106,7 @@ export class AuthController {
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
       });
-      
+
       return {
         success: true,
         message: 'RefreshToken successful',
@@ -117,7 +117,7 @@ export class AuthController {
       };
     }
 
-    // VERIFY EMAIL 
+    // VERIFY EMAIL
     @Get('verify')
     @Public()
     async verify(
@@ -126,7 +126,7 @@ export class AuthController {
       @Res() res: Response,
     ) {
       await this.authService.verifyByToken(token, email);
-        
+
       res.send(`
         <!doctype html>
         <html lang="vi">
@@ -164,7 +164,7 @@ export class AuthController {
                     Cảm ơn bạn — địa chỉ email của bạn đã được xác thực thành công. Bây giờ bạn có thể đăng nhập và bắt đầu trải nghiệm mua sắm tại <strong>TechZone</strong>.
                   </p>
                   <p class="meta">
-                    Nếu bạn không thực hiện yêu cầu này hoặc cần trợ giúp, hãy liên hệ: 
+                    Nếu bạn không thực hiện yêu cầu này hoặc cần trợ giúp, hãy liên hệ:
                     <a href="mailto:laptopshop8386@gmail.com">laptopshop8386@gmail.com</a>
                   </p>
                 </div>
@@ -182,7 +182,7 @@ export class AuthController {
       `);
     }
 
-    // RESEND VERIFY EMAIL 
+    // RESEND VERIFY EMAIL
     @Post('resend')
     @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
@@ -195,7 +195,7 @@ export class AuthController {
       };
     }
 
-    // SEND RESET PASSWORD 
+    // SEND RESET PASSWORD
     @Post('send-reset-password')
     @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()
@@ -208,7 +208,7 @@ export class AuthController {
       };
     }
 
-    // RESET PASSWORD 
+    // RESET PASSWORD
     @Patch('reset-password')
     @Throttle({ default: { limit: 3, ttl: 60000 } })
     @Public()

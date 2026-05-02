@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
 
 export class RegisterDTO {
-    @IsEmail({}, { message: 'Email không hợp lệ' }) 
+    @IsEmail({}, { message: 'Email không hợp lệ' })
     @IsNotEmpty({ message: 'Email không được để trống' })
     email: string;
     @IsString()
@@ -15,7 +15,7 @@ export class RegisterDTO {
 }
 
 export class LoginDTO {
-    @IsEmail({}, { message: 'Email không hợp lệ' }) 
+    @IsEmail({}, { message: 'Email không hợp lệ' })
     @IsNotEmpty({ message: 'Email không được để trống' })
     email: string;
     @IsString()
@@ -26,7 +26,7 @@ export class LoginDTO {
 }
 
 export class ResetPasswordDTO {
-    @IsEmail({}, { message: 'Email không hợp lệ' }) 
+    @IsEmail({}, { message: 'Email không hợp lệ' })
     @IsNotEmpty({ message: 'Email không được để trống' })
     email: string;
     @IsString()

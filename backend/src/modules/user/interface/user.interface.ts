@@ -1,8 +1,10 @@
+import { Role } from "../../../enums"
+
 export interface UserPaginate {
-  userID: number, 
-  name: string, 
-  email: string, 
-  role: string
+  userID: number,
+  name: string,
+  email: string,
+  role: Role
 }
 
 export interface UserFindEmail {
@@ -10,7 +12,7 @@ export interface UserFindEmail {
   name: string,
   email: string,
   password: string,
-  role: string,
+  role: Role,
   refresh_token: string,
   verification_code: string,
   sent_at: Date,
