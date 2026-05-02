@@ -2,12 +2,12 @@ import { Module, Global } from '@nestjs/common';
 import { Pool } from 'pg';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-@Global() 
+@Global()
 @Module({
-    imports: [ConfigModule], 
+    imports: [ConfigModule],
     providers: [
     {
-        provide: 'DATABASE_POOL', 
+        provide: 'DATABASE_POOL',
         useFactory: (configService: ConfigService) => {
             return new Pool({
                 connectionString: configService.get<string>('DATABASE_URL'),
@@ -16,6 +16,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         inject: [ConfigService],
     },
     ],
-    exports: ['DATABASE_POOL'], 
+    exports: ['DATABASE_POOL'],
 })
 export class DatabaseModule {}

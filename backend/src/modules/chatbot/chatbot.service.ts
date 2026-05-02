@@ -1,14 +1,15 @@
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { ChatResponseDTO } from './dto';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+const TZ = 'Asia/Ho_Chi_Minh';
 
 @Injectable()
 export class ChatBotService implements OnModuleInit {
@@ -39,8 +40,8 @@ export class ChatBotService implements OnModuleInit {
     // Tạo phản hồi chat
     async generateChatResponse(question: string, productContext?: any[]): Promise<ChatResponseDTO> {
         try {
-            const contextString = productContext && productContext.length > 0 
-                ? JSON.stringify(productContext) 
+            const contextString = productContext && productContext.length > 0
+                ? JSON.stringify(productContext)
                 : "Không có dữ liệu sản phẩm.";
 
             const prompt = `
@@ -56,12 +57,12 @@ export class ChatBotService implements OnModuleInit {
                 {
                     "reply_message": "Câu trả lời của bạn...",
                     "suggested_products": [
-                        { 
-                            "id": "...", 
-                            "name": "...", 
+                        {
+                            "id": "...",
+                            "name": "...",
                             "price": 0,   // Để dạng số nguyên
                             "image": "...", // URL ảnh
-                            "reason": "Lý do ngắn gọn..." 
+                            "reason": "Lý do ngắn gọn..."
                         }
                     ]
                 }
@@ -69,14 +70,14 @@ export class ChatBotService implements OnModuleInit {
 
             const result = await this.model.generateContent(prompt);
             const responseText = result.response.text();
-            
+
             // Clean JSON
             const cleanJson = responseText
                 .replace(/^```json/g, '')
                 .replace(/^```/g, '')
                 .replace(/```$/g, '')
                 .trim();
-            
+
             return JSON.parse(cleanJson);
 
         } catch (error) {
@@ -92,11 +93,11 @@ export class ChatBotService implements OnModuleInit {
     // Lấy lịch sử chat của người dùng
     async getChatHistory(userID: string) {
         const query = `
-            SELECT * FROM "chat_messages" 
-            WHERE "userID" = $1 
+            SELECT * FROM "chat_messages"
+            WHERE "userID" = $1
             ORDER BY "createdAt" ASC
         `;
-        
+
         const result = await this.pool.query(query, [userID]);
         return result.rows;
     }
@@ -108,14 +109,14 @@ export class ChatBotService implements OnModuleInit {
         role: 'USER' | 'AI',
         productData?: any[]
     ) {
-        const nowVN = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
-        
+        const nowVN = dayjs().tz(TZ).toDate();
+
         const query = `
             INSERT INTO "chat_messages" ("userID", content, role, "createdAt", "productData")
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
-        
+
         const values = [userID, content, role, nowVN, productData ? JSON.stringify(productData) : null];
         const result = await this.pool.query(query, values);
         return result.rows[0];

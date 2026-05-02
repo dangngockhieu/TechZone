@@ -1,4 +1,4 @@
-import { 
+import {
   Body, Controller, Get, Post, Req
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -15,7 +15,7 @@ export class ChatBotController {
     async handleChat(@Body() chatRequest: ChatRequestDTO, @Req() req: Request) {
         try {
             const { question, context } = chatRequest;
-            const userID = (req as any).user?.id; 
+            const userID = (req as any).user?.id;
 
             if (!question) {
                 throw new BadRequestException('Câu hỏi không được để trống.');
@@ -30,9 +30,9 @@ export class ChatBotController {
 
                     // Lưu tin nhắn AI
                     await this.chatbotService.saveChatMessage(
-                        userID, 
-                        aiResponse.reply_message, 
-                        'AI', 
+                        userID,
+                        aiResponse.reply_message,
+                        'AI',
                         aiResponse.suggested_products
                     );
                 } catch (err) {
@@ -40,9 +40,9 @@ export class ChatBotController {
                 }
             }
 
-            return { 
-                success: true, 
-                message: "Thành công", 
+            return {
+                success: true,
+                message: "Thành công",
                 data:{
                     aiResponse: aiResponse
                 }
@@ -50,10 +50,10 @@ export class ChatBotController {
 
         } catch (error) {
             console.error("Lỗi Controller:", error);
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: "Lỗi",
-                data:{} 
+                data:{}
              };
         }
     }
@@ -61,8 +61,8 @@ export class ChatBotController {
     @Get('history')
     async getChatHistory(@Req() req: Request) {
         try {
-            const userID = (req as any).user?.id; 
-      
+            const userID = (req as any).user?.id;
+
             if (!userID) {
                 throw new UnauthorizedException('Câu hỏi không được để trống.');
             }
@@ -81,5 +81,5 @@ export class ChatBotController {
             throw new InternalServerErrorException( "Lỗi hệ thống, vui lòng thử lại sau.");
         }
     }
-  
+
 }

@@ -8,7 +8,7 @@ export class CartController {
         private readonly cartService: CartService
     ) {}
 
-    // Add Product to Cart 
+    // Add Product to Cart
     @Post('cart')
     async addProductToCart(@Req() req : Request) {
         const userID = Number((req.user as any)?.id);
@@ -20,7 +20,7 @@ export class CartController {
         };
     }
 
-    // Number Cart 
+    // Number Cart
     @Get('number-cart')
     @Throttle({ default: { limit: 50, ttl: 60000 } })
     async numberCart(@Req() req : Request) {
@@ -35,7 +35,7 @@ export class CartController {
         };
     }
 
-    // Get Cart 
+    // Get Cart
     @Get('cart')
     @Throttle({ default: { limit: 50, ttl: 60000 } })
     async getCart(@Req() req : Request) {
@@ -47,11 +47,11 @@ export class CartController {
             data:{
                 cartItems: cartItems || []
             }
-            
+
         };
     }
 
-    // Update quantity Product from Cart 
+    // Update quantity Product from Cart
     @Patch('cart')
     @Throttle({ default: { limit: 50, ttl: 60000 } })
     async updateQuantityCart(@Req() req : Request, @Query() query: any) {
@@ -78,7 +78,7 @@ export class CartController {
         };
     }
 
-    // Buy Now 
+    // Buy Now
     @Post('buy-now')
     async buyNow(@Req() req : Request) {
         const userID = Number((req.user as any)?.id);
@@ -90,7 +90,7 @@ export class CartController {
         };
     }
 
-    // Check Out 
+    // Check Out
     @Patch('checkout')
     async checkout(@Req() req : Request) {
         const userID = Number((req.user as any)?.id);

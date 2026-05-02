@@ -20,4 +20,4 @@ export interface ProductView{
   factory: string,
   images: string[],
   features: string[]
-} 
+}
