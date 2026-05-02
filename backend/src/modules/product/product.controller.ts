@@ -1,6 +1,6 @@
-import { 
-  Body, Controller, Delete, Get, Param, Post, Put, Query, 
-  Req, UploadedFile, UploadedFiles, UseInterceptors,  
+﻿import {
+  Body, Controller, Delete, Get, Param, Post, Put, Query,
+  Req, UploadedFile, UploadedFiles, UseInterceptors,
   BadRequestException
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -13,6 +13,7 @@ import { Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SkipThrottle} from '@nestjs/throttler';
+import { Role } from '../../enums';
 
 // Cấu hình Multer lưu ảnh
 const multerConfig = {
@@ -62,7 +63,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
   // Lấy sản phẩm với phân trang và lọc
   @Get('products-paginate')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async getProductsWithPaginate(@Query() query: any) {
     const { page, limit, keyword, category, factory } = query;
 
@@ -77,21 +78,21 @@ export class ProductController {
     }
   }
 
-  // Lấy sản phẩm theo bộ lọc
+ // Lấy sản phẩm theo bộ lọc
   @Post('filter-products')
   @Public()
   async getFilteredProducts(@Req() req: ExpressRequest) {
     const category = req.body.category;
     const filters = req.body.filters as ProductFilters ;
     const {count, products} = await this.productService.getFilterProducts(category, filters);
-    return { 
+    return {
       success: true,
       message: 'Lấy danh sách sản phẩm thành công',
       data:{
         count,
         products
       }
-      
+
      };
   }
 
@@ -112,7 +113,7 @@ export class ProductController {
   @Public()
   async getTopSellingPhone() {
     const data = await this.productService.getTopSellingPhone();
-    return { 
+    return {
       success: true,
       message: 'Lấy danh sách sản phẩm thành công',
       data: data
@@ -122,10 +123,10 @@ export class ProductController {
   // Lấy sản phẩm bán chạy nhất
   @Get('top-selling-product')
   @SkipThrottle()
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async getTopSellingProduct() {
     const data = await this.productService.getTopSellingProduct();
-    return { 
+    return {
       success: true,
       products : data
     };
@@ -148,7 +149,7 @@ export class ProductController {
   async getProductById(@Param('id') id: string) {
     const data = await this.productService.getProductById(Number(id));
     if (!data.product) throw new BadRequestException('Not found');
-    return { 
+    return {
       success: true,
       message: 'Lấy chi tiết sản phẩm thành công',
       data : data
@@ -157,20 +158,20 @@ export class ProductController {
 
   // Tạo sản phẩm mới
   @Post('product')
-  @Roles('ADMIN') 
+  @Roles(Role.ADMIN)
   @UseInterceptors(FilesInterceptor('images', 5, multerConfig))
   async createProduct(@Body() body: any, @UploadedFiles() files: Array<Express.Multer.File>) {
     const product = await this.productService.createProduct(body, files);
     return { 
       success: true,
-      message: 'Tạo sản phẩm thành công', 
+      message: 'Tạo sản phẩm thành công',
       product: product
     };
   }
 
   // Import sản phẩm từ file Excel
   @Post('upload-excel')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor('excel', multerExcelConfig))
   async importProductsFromExcel(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -187,7 +188,7 @@ export class ProductController {
       
       return { 
         success: true,
-        message: `Import thành công ${importedCount} sản phẩm` 
+        message: `Import thành công ${importedCount} sản phẩm`
       };
     } catch (error) {
       // Xóa file ngay cả khi có lỗi
@@ -200,12 +201,12 @@ export class ProductController {
 
   // Cập nhật sản phẩm
   @Put('products/:id')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async updateProduct(@Param('id') id: string, @Body() body: any) {
     const product = await this.productService.updateProduct(Number(id), body);
     return { 
       success: true,
-      message: 'Cập nhật thành công', 
+      message: 'Cập nhật thành công',
       data: {
         product
       }  
@@ -214,7 +215,7 @@ export class ProductController {
 
   // Xóa sản phẩm
   @Delete('products/:id')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async deleteProduct(@Param('id') id: string) {
     await this.productService.deleteProduct(Number(id));
     return { 
@@ -224,7 +225,7 @@ export class ProductController {
 
   // Thêm features cho sản phẩm
   @Post('product-features/:productID')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async addProductFeatures(@Param('productID') productID: string, @Body() body: any) {
     const { featureIDs } = body;
     await this.productService.addProductFeatures(Number(productID), featureIDs);
@@ -236,7 +237,7 @@ export class ProductController {
 
   // Xóa feature của sản phẩm
   @Delete('product-feature')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async deleteProductFeature(@Query() query: any) {
     const { productID, featureID } = query;
     await this.productService.deleteProductFeature(Number(productID), Number(featureID));
@@ -248,7 +249,7 @@ export class ProductController {
 
   // Thêm nhiều ảnh cho sản phẩm
   @Post('product-images/:productID')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
   async addProductImages(
     @Param('productID') productID: string,
@@ -263,7 +264,7 @@ export class ProductController {
 
   // Xóa ảnh sản phẩm
   @Delete('product-image/:imageId')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async deleteProductImage(@Param('imageId') imageId: string) {
     await this.productService.deleteProductImage(Number(imageId));
     return {
@@ -281,23 +282,23 @@ export class ProductController {
   ) {
     const userID = req.user.id;
     const { rating, comment, orderItemID } = body;
-    
+
     const review = await this.productService.createReview(
       Number(productID), userID, Number(rating), comment, Number(orderItemID)
     );
-    return { 
+    return {
       success: true,
-      message: 'Đánh giá thành công', 
+      message: 'Đánh giá thành công',
       data: {
         review
-      } 
+      }
     };
   }
 
   // Tính tổng số sản phẩm trong kho
   @Get('count')
   @SkipThrottle()
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async countProducts() {
     const count = await this.productService.countProducts();
     return {

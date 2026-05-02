@@ -1,9 +1,9 @@
 import { Injectable, Inject} from '@nestjs/common';
 import { BadRequestException, InternalServerErrorException } from '../../help/exception';
 import { Pool } from 'pg';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -16,7 +16,7 @@ dayjs.extend(timezone);
 export class ProductService {
     constructor(@Inject('DATABASE_POOL') private pool: Pool) {}
 
-    // LẤY DANH SÁCH SẢN PHẨM (PAGINATE + FILTER) 
+    // LẤY DANH SÁCH SẢN PHẨM (PAGINATE + FILTER)
     async getProductsWithPaginate(page: number, limit: number, keyword = '', category = '', factory = '') {
         const pageNum = page || 1;
         const limitNum = limit || 10;
@@ -25,7 +25,7 @@ export class ProductService {
         // Xây dựng WHERE Clause
         let whereClauses = ['1=1'];
         const params: any[] = [];
-        let paramIndex = 1; 
+        let paramIndex = 1;
 
         if (category && ['LAPTOP', 'PHONE'].includes(category)) {
             whereClauses.push(`p.category = $${paramIndex++}`);
@@ -619,14 +619,14 @@ export class ProductService {
             await client.query('DELETE FROM "products" WHERE id = $1', [id]);
 
             await client.query('COMMIT');
-            // Xóa file ảnh trong ổ cứng 
+            // Xóa file ảnh trong ổ cứng
             for (const img of images) {
-                const filePath = path.join('public', img.url); 
+                const filePath = path.join('public', img.url);
                 if (fs.existsSync(filePath)) {
                     try {
                         fs.unlinkSync(filePath);
                     } catch (err) {
-                        console.warn(`Không thể xóa file ${filePath}:`, err.message);
+                        console.warn(`Không thể xóa file ${filePath}:`, err);
                     }
                 }
             }

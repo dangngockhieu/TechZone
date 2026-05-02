@@ -1,9 +1,10 @@
 import { Controller, Post, Req, Body, Get, Patch, Delete } from "@nestjs/common";
 import { OrderService } from "./order.service";
-import { CreateOrderDTO, OrderDTO } from "./interface";
+import { CreateOrderDTO, OrderDTO } from './dto/order.dto';
 import { Request } from 'express';
-import { Roles } from "src/auth/decorater/roles";
+import { Roles } from "../../auth/decorater/roles";
 import { Throttle, SkipThrottle} from '@nestjs/throttler';
+import { Role } from "../../enums";
 
 @Controller('order')
 export class OrderController {
@@ -11,12 +12,12 @@ export class OrderController {
         private readonly orderService: OrderService
     ) {}
 
-    // Tạo đơn hàng 
+    // Tạo đơn hàng
     @Post('order')
     @Throttle({ default: { limit: 20, ttl: 60000 } })
     async createOrder(@Req() req: Request, @Body() body: CreateOrderDTO) {
         const { recipientName, address, phone, items, totalPrice, paymentMethod } = body;
-        const userID = (req as any).user?.id; 
+        const userID = (req as any).user?.id;
         const orderID = await this.orderService.createOrder(userID, recipientName, address, phone, items, totalPrice, paymentMethod);
         return {
             success: true,
@@ -24,13 +25,13 @@ export class OrderController {
             data:{
                 orderID: orderID
             }
-              
+
         };
     }
 
-    // Lấy List Order chờ xử lý 
+    // Lấy List Order chờ xử lý
     @Get('orders/pending')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async getPendingOrders(@Req() req: Request) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -42,12 +43,12 @@ export class OrderController {
                 orders: orders,
                 pg: pg
             }
-            
+
         };
     }
 
     @Delete('order')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async deleteOrder(@Req() req: Request) {
         const orderID = Number(req.query.orderID);
         await this.orderService.deleteOrder(orderID);
@@ -57,9 +58,9 @@ export class OrderController {
         };
     }
 
-    // Lấy List Order theo status 
+    // Lấy List Order theo status
     @Get('orders')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async getListOrders(@Req() req: Request) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -71,13 +72,13 @@ export class OrderController {
             data:{
                 orders: orders,
                 pg: pg
-            }  
+            }
         };
     }
 
-    // Lấy chi tiết đơn hàng 
+    // Lấy chi tiết đơn hàng
     @Get('orders-item')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async getOrderDetail(@Req() req: Request) {
         const orderID = parseInt(req.query.orderID as string, 10);
         const products = await this.orderService.getOrderItem(orderID);
@@ -87,47 +88,41 @@ export class OrderController {
             data:{
                 products: products
             }
-            
+
         };
     }
 
-    // Cập nhật trạng thái đơn hàng 
+    // Cập nhật trạng thái đơn hàng
     @Patch('order-to-shipping')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async updateOrderStatus(@Req() req: Request, @Body() body: any) {
         const orderID = Number(req.query.orderID);
         const { trackingCode, expectedDate } = body;
-        const order = await this.orderService.updatePendingtoShipping(orderID, trackingCode,  expectedDate);
+        await this.orderService.updatePendingtoShipping(orderID, trackingCode,  expectedDate);
         return {
             success: true,
-            message: 'Cập nhật trạng thái đơn hàng thành công',
-            data: {
-                order
-            }
-        
+            message: 'Cập nhật trạng thái đơn hàng thành công'
+
         };
     }
 
     // ===================== Cập nhật trạng thái đơn hàng =====================
     @Patch('order')
     async updateOrderforUser(@Req() req: Request) {
-        const userID = Number((req as any).user?.id); 
+        const userID = Number((req as any).user?.id);
         const orderID = Number(req.query.orderID);
         const status = (req.body.status as string);
-        const order = await this.orderService.updateOrderforUser(orderID, userID, status);
+        await this.orderService.updateOrderforUser(orderID, userID, status);
         return {
             success: true,
-            message: 'Cập nhật trạng thái đơn hàng thành công',
-            data: {
-                order
-            }
+            message: 'Cập nhật trạng thái đơn hàng thành công'
         };
     }
     // ===================== Lấy danh sách đơn hàng của người dùng =====================
     @Get('my-orders')
     async getUserOrders(@Req() req: Request) {
-        const userID = (req as any).user?.id; 
+        const userID = (req as any).user?.id;
         const status = (req.query.status as string) || 'PENDING';
         const orders = await this.orderService.getUserOrders(userID, status);
         return {
@@ -142,7 +137,7 @@ export class OrderController {
     // ===================== Count Order =====================
     @Get('count')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async countOrders(@Req() req: Request) {
         const {count, countPending, countShipping, countCompleted} = await this.orderService.countOrders();
         return {
@@ -157,7 +152,7 @@ export class OrderController {
     // ===================== Thống kê doanh thu tháng này =====================
     @Get('revenue-this-month')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async revenueThisMonth(@Req() req: Request) {
         const {currentMonthRevenue, growth} = await this.orderService.getRevenueThisMonth();
         return {
@@ -173,7 +168,7 @@ export class OrderController {
     // ===================== Thống kê doanh thu năm nay =====================
     @Get('revenue-by-month')
     @SkipThrottle()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     async revenueThisYear(@Req() req: Request) {
         const revenueData = await this.orderService.getRevenueByMonth();
         return {
@@ -188,7 +183,7 @@ export class OrderController {
     // ===================== Buy Again =====================
     @Post('buy-again')
     async buyAgain(@Req() req: Request, @Body() body: OrderDTO) {
-        const userID = (req as any).user?.id; 
+        const userID = (req as any).user?.id;
         const { products } = body;
         await this.orderService.buyAgain(userID, products);
         return {

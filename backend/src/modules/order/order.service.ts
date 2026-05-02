@@ -1,33 +1,37 @@
-import { OrderItem, ProductDTO } from './interface/order.interface';
+import { OrderItemDTO, ProductDTO } from './dto/order.dto';
 import { Injectable } from "@nestjs/common";
 import { BadRequestException, InternalServerErrorException } from '../../help/exception';
 import { Inject } from "@nestjs/common";
 import { Pool } from "pg";
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { Cron } from '@nestjs/schedule';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '../../enums';
+import { OrderResponse, TotalPagination, OrderItem, UserOrderResponse } from './interface';
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+const TZ = 'Asia/Ho_Chi_Minh';
 
 @Injectable()
 export class OrderService {
     constructor(
         @Inject('DATABASE_POOL') private pool: Pool
-    ) {} 
+    ) {}
 
-    // Tạo đơn hàng 
-    async createOrder(userID: number, recipientName: string, 
-        address: string, phone: string, items: OrderItem[], 
-        totalPrice: number, paymentMethod: string ) : Promise<void> { 
-        const nowVN = dayjs().tz('Asia/Ho_Chi_Minh').toDate();
+    // Tạo đơn hàng
+    async createOrder(userID: number, recipientName: string,
+        address: string, phone: string, items: OrderItemDTO[],
+        totalPrice: number, paymentMethod: string ) : Promise<void> {
+        const nowVN = dayjs().tz(TZ).toDate();
         const client = await this.pool.connect();
         try {
             await client.query('BEGIN');
             // TRỪ KHO & KIỂM TRA TỒN KHO
             for (const item of items) {
                 const updateStockQuery = `
-                    UPDATE "products" 
+                    UPDATE "products"
                     SET quantity = quantity - $1, sold = sold + $1
                     WHERE id = $2 AND quantity >= $1
                 `;
@@ -38,25 +42,25 @@ export class OrderService {
                 }
             }
 
-            // TẠO ORDER 
+            // TẠO ORDER
             const insertOrderQuery = `
-                INSERT INTO "orders" 
-                    ("userID", "recipientName", address, phone, "totalPrice", status, "orderDate")
-                VALUES ($1, $2, $3, $4, $5, 'PENDING', $6)
+                INSERT INTO "orders"
+                    ("userID", "recipientName", address, phone, "totalPrice", "orderDate")
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id;
             `;
-        
+
             const orderRes = await client.query(insertOrderQuery, [
                 userID, recipientName, address, phone, totalPrice, nowVN
             ]);
             const orderID = orderRes.rows[0].id;
 
-            // TẠO ORDER ITEMS 
+            // TẠO ORDER ITEMS
             const insertItemQuery = `
                 INSERT INTO "order_items" ("orderID", "productID", quantity, price)
                 VALUES ($1, $2, $3, $4)
             `;
-        
+
             for (const item of items) {
                 await client.query(insertItemQuery, [orderID, item.productID, item.quantity, item.price]);
             }
@@ -64,13 +68,13 @@ export class OrderService {
             // TẠO PAYMENT
             const insertPaymentQuery = `
                 INSERT INTO "payments" ("orderID", amount, method, status, "createdAt")
-                VALUES ($1, $2, $3, 'UNPAID', $4)
+                VALUES ($1, $2, $3, '${PaymentStatus.PENDING}', $4)
             `;
             await client.query(insertPaymentQuery, [orderID, totalPrice, paymentMethod, nowVN]);
- 
+
             // Xóa những món đã mua khỏi giỏ của user
             const clearCartQuery = `
-                DELETE FROM "carts" 
+                DELETE FROM "carts"
                 WHERE "userID" = $1 AND "productID" = ANY($2::int[])
             `;
             const productIDs = items.map(i => i.productID);
@@ -126,21 +130,24 @@ export class OrderService {
         }
     }
 
-    // Lấy List Order chờ xử lý 
-    async getPendingOrders(page: number, limit: number): Promise<any> {
+    // Lấy List Order chờ xử lý
+    async getPendingOrders(
+        page: number,
+        limit: number
+    ): Promise<{ orders: OrderResponse[]; pg: TotalPagination }> {
         const offset = (page - 1) * limit;
         const baseQuery = `
             FROM "orders" o
             JOIN "payments" p ON o.id = p."orderID"
-            WHERE o.status = 'PENDING'
+            WHERE o.status = '${OrderStatus.PENDING}'
             AND (
-                p.status = 'PAID' 
-                OR (p.status = 'UNPAID' AND p.method = 'COD')
+                p.status = '${PaymentStatus.PAID}'
+                OR (p.status = '${PaymentStatus.PENDING}' AND p.method = '${PaymentMethod.COD}')
             )
         `;
         const queryData = `
-            SELECT 
-                o.id AS "orderID", o."userID", o."recipientName", o.address, o.phone, o."totalPrice", 
+            SELECT
+                o.id AS "orderID", o."userID", o."recipientName", o.address, o.phone, o."totalPrice",
                 o.status AS "orderStatus", o."orderDate",
                 p.method AS "paymentMethod", p.status AS "paymentStatus",
                 (SELECT u.email FROM "users" u WHERE u.id = o."userID") AS "userEmail"
@@ -150,18 +157,18 @@ export class OrderService {
         `;
 
         const queryCount = `
-            SELECT COUNT(*) AS total 
+            SELECT COUNT(*) AS total
             ${baseQuery}
         `;
 
         try {
             const [resData, resCount] = await Promise.all([
                 this.pool.query(queryData, [limit, offset]),
-                this.pool.query(queryCount) 
+                this.pool.query(queryCount)
             ]);
 
-        
-            const total = Number(resCount.rows[0]?.total) || 0; 
+
+            const total = Number(resCount.rows[0]?.total) || 0;
             const orders = resData.rows;
 
             return {
@@ -171,7 +178,7 @@ export class OrderService {
                     totalPages: Math.ceil(total / limit),
                     currentPage: Number(page)
                 }
-                
+
             };
 
         } catch (error) {
@@ -180,8 +187,10 @@ export class OrderService {
         }
     }
 
-    // Lấy danh sách đơn hàng cho admin theo trạng thái 
-    async getOrderforAdmin (page : number, limit : number, status: string): Promise<any> {
+    // Lấy danh sách đơn hàng cho admin theo trạng thái
+    async getOrderforAdmin (page : number, limit : number, status: string)
+        : Promise<{ orders: OrderResponse[]; pg: TotalPagination }>
+    {
         const offset = (page - 1) * limit;
         const baseQuery = `
             FROM "orders" o
@@ -189,9 +198,9 @@ export class OrderService {
             WHERE o.status = $1
         `;
         const queryData = `
-            SELECT 
-                o.id AS "orderID", o."userID", o."recipientName", o.address, o.phone, o."totalPrice", 
-                o.status AS "orderStatus", o."orderDate", o."trackingCode", o."deliveryDate", 
+            SELECT
+                o.id AS "orderID", o."userID", o."recipientName", o.address, o.phone, o."totalPrice",
+                o.status AS "orderStatus", o."orderDate", o."trackingCode", o."deliveryDate",
                 o."expectedDate", o."receivedDate",
                 p.method AS "paymentMethod", p.status AS "paymentStatus",
                 (SELECT u.email FROM "users" u WHERE u.id = o."userID") AS "userEmail"
@@ -201,17 +210,17 @@ export class OrderService {
         `;
 
         const queryCount = `
-            SELECT COUNT(*) AS total 
+            SELECT COUNT(*) AS total
             ${baseQuery}
         `;
 
         try {
             const [resData, resCount] = await Promise.all([
                 this.pool.query(queryData, [status, limit, offset]),
-                this.pool.query(queryCount, [status]) 
+                this.pool.query(queryCount, [status])
             ]);
 
-            const total = Number(resCount.rows[0]?.total) || 0; 
+            const total = Number(resCount.rows[0]?.total) || 0;
             const orders = resData.rows;
 
             return {
@@ -221,7 +230,7 @@ export class OrderService {
                     totalPages: Math.ceil(total / limit),
                     currentPage: Number(page)
                 }
-                
+
             };
 
         } catch (error) {
@@ -231,9 +240,9 @@ export class OrderService {
     }
 
     // Chi tiết đơn hàng
-    async getOrderItem(orderID: number): Promise<any[]> {
+    async getOrderItem(orderID: number): Promise<OrderItem[]> {
         const query = `
-            SELECT p.id AS "productID", p.name, 
+            SELECT p.id AS "productID", p.name,
                 oi.quantity, oi.price AS "unitPrice",
             (
                 SELECT pi.url
@@ -251,23 +260,21 @@ export class OrderService {
     }
 
     // Cập nhật trạng thái đơn hàng sang quá trình vận chuyển
-    async updatePendingtoShipping (orderID: number, trackingCode: string, expectedDate: Date|null): Promise<any> {
+    async updatePendingtoShipping (orderID: number, trackingCode: string, expectedDate: Date|null): Promise<void> {
         const nowVN = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
         const expectedVN = expectedDate ? dayjs(expectedDate).tz("Asia/Ho_Chi_Minh").toDate() : null;
 
         const query = `
-            UPDATE "orders" 
-            SET status = 'SHIPPING', "trackingCode" = $1, "deliveryDate" = $2, "expectedDate" = $3
+            UPDATE "orders"
+            SET status = '${OrderStatus.SHIPPING}', "trackingCode" = $1, "deliveryDate" = $2, "expectedDate" = $3
             WHERE id = $4
             RETURNING *
         `;
-        const updatedOrder = await this.pool.query(query, [trackingCode, nowVN, expectedVN, orderID]);
-
-        return updatedOrder.rows[0];
+        await this.pool.query(query, [trackingCode, nowVN, expectedVN, orderID]);
     };
 
-    // Cập nhật trạng thái đơn hàng sang hoàn thành 
-    async updateOrderforUser (orderID: number, userID: number, status: string): Promise<any> {
+    // Cập nhật trạng thái đơn hàng sang hoàn thành
+    async updateOrderforUser (orderID: number, userID: number, status: string): Promise<void> {
         const orderQuery = `
             SELECT *
             FROM orders
@@ -281,12 +288,12 @@ export class OrderService {
         if(status === 'COMPLETED'){
             const query1 = `
                 UPDATE orders
-                SET status = 'COMPLETED', "receivedDate" = $1
-                WHERE id = $2 
+                SET status = '${OrderStatus.COMPLETED}', "receivedDate" = $1
+                WHERE id = $2
             `;
 
             const query2= `
-                UPDATE "products" p 
+                UPDATE "products" p
                 SET sold = p.sold + oi.quantity
                 FROM "order_items" oi
                 WHERE p.id = oi."productID" AND oi."orderID" = $1
@@ -301,16 +308,15 @@ export class OrderService {
                 await client.query('BEGIN');
 
                 // Update Order Status
-                const updatedOrder = await client.query(query1, [nowVN, orderID]);
+                await client.query(query1, [nowVN, orderID]);
 
-                // Update Product Sold 
+                // Update Product Sold
                 await client.query(query2, [orderID]);
 
                 // Update Payment Status
                 await client.query(query3, [orderID]);
 
                 await client.query('COMMIT');
-                return updatedOrder.rows[0];
             } catch (err) {
                 await client.query('ROLLBACK');
                 throw err;
@@ -321,18 +327,17 @@ export class OrderService {
         else{
             const query1 = `
                 UPDATE orders
-                SET status = 'CANCELED'
+                SET status = '${OrderStatus.CANCELED}'
                 WHERE id = $1
             `;
-            const updatedOrder = await this.pool.query(query1, [orderID]);
-            return updatedOrder.rows[0];
-        } 
+            await this.pool.query(query1, [orderID]);
+        }
     };
 
-    // Lấy danh sách đơn hàng của người dùng 
-    async getUserOrders(userID: number, status: string): Promise<any[]> {
+    // Lấy danh sách đơn hàng của người dùng
+    async getUserOrders(userID: number, status: string): Promise<UserOrderResponse[]> {
         const query = `
-            SELECT 
+            SELECT
                 o.id AS "orderID",
                 o."totalPrice",
                 o.status,
@@ -374,7 +379,7 @@ export class OrderService {
                     orderDate: row.orderDate,
                     paymentMethod: row.paymentMethod,
                     paymentStatus: row.paymentStatus,
-                    products: []   
+                    products: []
                 };
             }
             orders[id].products.push({
@@ -390,7 +395,7 @@ export class OrderService {
         return Object.values(orders);
     }
 
-    // Thống kê số lượng đơn hàng trong tháng 
+    // Thống kê số lượng đơn hàng trong tháng
     async countOrders(){
         const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
         const startOfMonth = dayjs(vnNow).startOf('month').toDate();
@@ -412,7 +417,7 @@ export class OrderService {
                 this.pool.query(query1, [startOfMonth, endOfMonth]),
                 this.pool.query(query2, [startOfMonth, endOfMonth, 'PENDING']),
                 this.pool.query(query2, [startOfMonth, endOfMonth, 'SHIPPING']),
-                this.pool.query(query2, [startOfMonth, endOfMonth, 'COMPLETED']) 
+                this.pool.query(query2, [startOfMonth, endOfMonth, 'COMPLETED'])
             ]);
             return {
                 count: Number(result.rows[0]?.orderCount) || 0,
@@ -426,7 +431,7 @@ export class OrderService {
         }
     }
 
-    // Thống kê doanh thu trong tháng hiện tại 
+    // Thống kê doanh thu trong tháng hiện tại
     async getRevenueThisMonth(){
         const vnNow = dayjs().tz("Asia/Ho_Chi_Minh");
         const startOfCurrentMonth = vnNow.startOf('month').toDate();
@@ -443,7 +448,7 @@ export class OrderService {
 
         const [result1, result2] = await Promise.all([
             this.pool.query(query, [startOfCurrentMonth, endOfCurrentMonth]),
-            this.pool.query(query, [startOfPrevMonth, endOfPrevMonth]), 
+            this.pool.query(query, [startOfPrevMonth, endOfPrevMonth]),
         ]);
         const currentMonthRevenue = result1.rows[0]?.revenue || 0;
         const prevMonthRevenue = result2.rows[0]?.revenue || 0;
@@ -457,11 +462,11 @@ export class OrderService {
 
         return {
             currentMonthRevenue,
-            growth: Number(growth.toFixed(2)), 
+            growth: Number(growth.toFixed(2)),
         }
     }
 
-    // Thống kê doanh thu theo tháng 
+    // Thống kê doanh thu theo tháng
     async  getRevenueByMonth(){
         const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
         const year = dayjs(vnNow).year();
@@ -471,7 +476,7 @@ export class OrderService {
         const query =`
             SELECT "orderDate", "totalPrice"
             FROM "orders"
-            WHERE status = 'COMPLETED'
+            WHERE status = '${OrderStatus.COMPLETED}'
             AND "orderDate" BETWEEN $1 AND $2
         `;
         const resultData = await this.pool.query(query, [startOfYear, endOfYear]);
@@ -480,13 +485,13 @@ export class OrderService {
         const monthlyRevenue = Array(12).fill(0);
         result.forEach((r) => {
             const vnDate = dayjs(r.orderDate).tz("Asia/Ho_Chi_Minh");
-            const month = vnDate.month(); 
+            const month = vnDate.month();
             monthlyRevenue[month] += r.totalPrice;
         });
 
         return monthlyRevenue;
     }
-    
+
     // Mua lại các sản phẩm trong đơn hàng trước đó
     async buyAgain(userID: number, products: ProductDTO[]): Promise<void> {
         const client = await this.pool.connect();
@@ -498,15 +503,15 @@ export class OrderService {
                 const productRes = await client.query(queryProduct, [p.productID]);
 
                 if (productRes.rows.length === 0) {
-                    continue; 
+                    continue;
                 }
                 const queryUpsert = `
                     INSERT INTO "carts" ("userID", "productID", "number", "isSelected")
                     VALUES ($1, $2, 1, true)
-                    ON CONFLICT ("userID", "productID") 
+                    ON CONFLICT ("userID", "productID")
                     DO UPDATE SET "isSelected" = true;
                 `;
-            
+
                 await client.query(queryUpsert, [userID, p.productID]);
             }
 
@@ -521,16 +526,16 @@ export class OrderService {
     }
 
     // Tự động xóa đơn hàng thanh toán online nhưng không hoàn thành sau 7 ngày
-    @Cron('0 0 * * 1', { timeZone: 'Asia/Ho_Chi_Minh' }) // Chạy vào lúc 00:00 mỗi Thứ Hai hàng tuần
+    @Cron('0 0 * * 1', { timeZone: TZ }) // Chạy vào lúc 00:00 mỗi Thứ Hai hàng tuần
     async deleteUnpaidOrders(): Promise<void> {
-        const vnNow = dayjs().tz("Asia/Ho_Chi_Minh").toDate();
+        const vnNow = dayjs().tz(TZ).toDate();
         const thresholdDate = dayjs(vnNow).subtract(7, 'day').toDate();
         const queryOrder = `
             SELECT o.id AS "orderID"
             FROM "orders" o
             JOIN "payments" p ON o.id = p."orderID"
-            WHERE p.method <> 'COD'
-            AND p.status = 'UNPAID'
+            WHERE p.method <> '${PaymentMethod.COD}'
+            AND p.status <> '${PaymentStatus.PAID}'
             AND o."orderDate" < $1
         `;
         const result = await this.pool.query(queryOrder, [thresholdDate]);
