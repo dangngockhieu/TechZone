@@ -22,7 +22,6 @@ Dự án bao gồm:
 ## 🔄 Migration from Node.js Version
 
 Originally built with Node.js (Express):
-https://github.com/dangngockhieu/Do_an1.git
 
 This version was re-implemented using Nestjs to achieve:
 
@@ -52,12 +51,6 @@ This project was developed in two main phases to experiment with and optimize th
 | **Auth**     | JWT, Cookies, Email Verification    | Hệ thống xác thực                |
 | **Mailer**   | Nodemailer + Gmail App Password     | Gửi mail xác thực/reset password |
 | **Database** | PostgreSQL                          | Lưu trữ dữ liệu                  |
-
----
-
-### 🎨 Figma Design
-
-🔗 [View Figma Design](https://www.figma.com/design/TrdxY3Fw1Iz9EdEhLgBJvc/Untitled?node-id=0-1&p=f&t=2A3bGnTvSRHaNvSl-0)
 
 ---
 
