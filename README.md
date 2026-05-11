@@ -24,7 +24,7 @@ Dự án bao gồm:
 Originally built with Node.js (Express):
 https://github.com/dangngockhieu/Do_an1.git
 
-This version was re-implemented using Spring Boot to achieve:
+This version was re-implemented using Nestjs to achieve:
 
 - Strong type safety
 - Better structured architecture
